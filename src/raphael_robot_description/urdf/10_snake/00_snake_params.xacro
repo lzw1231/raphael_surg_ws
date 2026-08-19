@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 蛇臂14节连杆参数：质量、半径、长度分块分组存放 -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- ====================== 各连杆质量 m(kg) ====================== -->
+    <xacro:property name="link0_m" value="0.10"/>
+    <xacro:property name="link1_m" value="0.10"/>
+    <xacro:property name="link2_m" value="0.10"/>
+    <xacro:property name="link3_m" value="0.10"/>
+    <xacro:property name="link4_m" value="0.10"/>
+    <xacro:property name="link5_m" value="0.10"/>
+    <xacro:property name="link6_m" value="0.10"/>
+    <xacro:property name="link7_m" value="0.10"/>
+    <xacro:property name="link8_m" value="0.10"/>
+    <xacro:property name="link9_m" value="0.10"/>
+    <xacro:property name="link10_m" value="0.10"/>
+    <xacro:property name="link11_m" value="0.10"/>
+    <xacro:property name="link12_m" value="0.10"/>
+    <xacro:property name="link13_m" value="0.10"/>
+
+    <!-- ====================== 各连杆外半径 r(m) ====================== -->
+    <xacro:property name="link0_r" value="0.0078"/>
+    <xacro:property name="link1_r" value="0.0078"/>
+    <xacro:property name="link2_r" value="0.0078"/>
+    <xacro:property name="link3_r" value="0.0078"/>
+    <xacro:property name="link4_r" value="0.0078"/>
+    <xacro:property name="link5_r" value="0.0078"/>
+    <xacro:property name="link6_r" value="0.0078"/>
+    <xacro:property name="link7_r" value="0.0078"/>
+    <xacro:property name="link8_r" value="0.0078"/>
+    <xacro:property name="link9_r" value="0.0078"/>
+    <xacro:property name="link10_r" value="0.0078"/>
+    <xacro:property name="link11_r" value="0.0078"/>
+    <xacro:property name="link12_r" value="0.0078"/>
+    <xacro:property name="link13_r" value="0.0078"/>
+
+    <!-- ====================== 各连杆总长 l(m) ====================== -->
+    <xacro:property name="link0_l" value="0.285"/>
+    <xacro:property name="link1_l" value="0.1200"/>
+    <xacro:property name="link2_l" value="0.1180"/>
+    <xacro:property name="link3_l" value="0.1160"/>
+    <xacro:property name="link4_l" value="0.1150"/>
+    <xacro:property name="link5_l" value="0.1140"/>
+    <xacro:property name="link6_l" value="0.1130"/>
+    <xacro:property name="link7_l" value="0.1120"/>
+    <xacro:property name="link8_l" value="0.1110"/>
+    <xacro:property name="link9_l" value="0.1100"/>
+    <xacro:property name="link10_l" value="0.1090"/>
+    <xacro:property name="link11_l" value="0.1080"/>
+    <xacro:property name="link12_l" value="0.1070"/>
+    <xacro:property name="link13_l" value="0.1000"/>
+</robot>

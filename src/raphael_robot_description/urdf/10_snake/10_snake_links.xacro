@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="get_snake_links" params="prefix">
+
+        <link name="${prefix}_link00">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan00.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 ${pi} 0"/>
+                <material name="${prefix}_color_0"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan00.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 ${pi} 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link01">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan01.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_1"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan01.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link02">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan02.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_2"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan02.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link03">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan03.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_3"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan03.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link04">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan04.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_4"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan04.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link05">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan05.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_5"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan05.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link06">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan06.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_6"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan06.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link07">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan07.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_7"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan07.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link08">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan08.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_8"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan08.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link09">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan09.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_9"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan09.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link09b">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan09b.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_9b"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan09b.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link10">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan10.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_10"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan10.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link11">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan11.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_11"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan11.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+        <link name="${prefix}_link12">
+            <visual>
+                <geometry>
+                    <mesh filename="${stl_path}/duan12.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${prefix}_color_12"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${stl_path}/duan12.stl" scale="${mesh_scale}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+
+    </xacro:macro>
+
+</robot>

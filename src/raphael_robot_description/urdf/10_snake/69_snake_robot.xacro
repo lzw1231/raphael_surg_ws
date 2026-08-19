@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot name="snake_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- 10 加载snake材质 -->
+    <xacro:include filename="$(find raphael_robot_description)/urdf/10_snake/01_snake_materials.xacro"/>
+
+    <!-- 11 stl模型缩1000倍，单位转为 米 -->
+    <xacro:property name="mesh_scale" value="0.001 0.001 0.001"/>
+
+    <!-- 12 stl模型路径 -->
+    <xacro:property name="stl_path" value="package://raphael_robot_description/meshes/snake"/>
+
+    <!-- 13 各连杆的质量、外径、长度 -->
+    <xacro:include filename="$(find raphael_robot_description)/urdf/10_snake/00_snake_params.xacro"/>
+
+    <!-- 14 创建连杆的函数 -->
+    <xacro:include filename="$(find raphael_robot_description)/urdf/10_snake/10_snake_links.xacro"/>
+
+    <!-- 15 创建关节的函数 -->
+    <xacro:include filename="$(find raphael_robot_description)/urdf/10_snake/11_snake_joints.xacro"/>
+
+    <!-- 16 调用宏生成snake -->
+    <xacro:get_snake_links prefix="s1"/>
+
+    <xacro:get_snake_joints prefix="s1"/>
+
+
+    <!-- 17 生成 base_footprint_snake 固定基座 -->
+    <link name="base_footprint_snake"/>
+
+    <joint name="base_s1_link00" type="fixed">
+        <parent link="base_footprint_snake"/>
+        <child link="s1_link00"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+
+</robot>
