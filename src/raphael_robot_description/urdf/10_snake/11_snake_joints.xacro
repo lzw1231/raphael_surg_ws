@@ -125,23 +125,25 @@
             <limit effort="${effort}" velocity="${velocity}" lower="${-rad_135}" upper="${rad_135}"/>
         </joint>
 
-        <!-- link10 -> link11 (分叉1) -->
+        <!-- link10 -> link11 【主动驱动关节，电机驱动】 -->
         <joint name="${prefix}_link10_link11_joint" type="revolute">
             <parent link="${prefix}_link10"/>
             <child link="${prefix}_link11"/>
             <origin xyz="${x_offset_10_11} 0 0" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
-            <limit effort="${effort}" velocity="${velocity}" lower="0" upper="${-rad_fork}"/>
+            <limit effort="${effort}" velocity="${velocity}" lower="${-rad_fork}" upper="0"/>
         </joint>
 
-        <!-- link10 -> link12 (分叉2) -->
+        <!-- link10 -> link12 【mimic镜像跟随，剪刀另一侧刀片】 -->
         <joint name="${prefix}_link10_link12_joint" type="revolute">
             <parent link="${prefix}_link10"/>
             <child link="${prefix}_link12"/>
             <origin xyz="${x_offset_10_12} 0 0" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
-            <limit effort="${effort}" velocity="${velocity}" lower="${rad_fork}" upper="0"/>
+            <limit effort="${effort}" velocity="${velocity}" lower="0" upper="${rad_fork}"/>
+            <mimic joint="${prefix}_link10_link11_joint" multiplier="-1.0" offset="0.0"/>
         </joint>
+
     </xacro:macro>
 
 </robot>
