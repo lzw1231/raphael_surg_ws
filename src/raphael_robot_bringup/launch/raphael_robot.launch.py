@@ -7,8 +7,8 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
-    robot_desc_file_path = os.path.join(get_package_share_directory("raphael_robot_description"), "urdf", "raphael_robot_urdf.xacro")
-    rviz_config_file_path = os.path.join(get_package_share_directory("raphael_robot_description"), "config", "urdf_config.rviz")
+    robot_desc_file_path = os.path.join(get_package_share_directory("raphael_robot_description"), "urdf", "raphael_robot.urdf.xacro")
+    rviz_config_file_path = os.path.join(get_package_share_directory("raphael_robot_description"), "rviz", "urdf_config.rviz")
     robot_controllers_yaml_path = os.path.join(get_package_share_directory("raphael_robot_bringup"), "config", "raphael_robot_controllers.yaml")
 
     robot_state_publisher_node = Node(
