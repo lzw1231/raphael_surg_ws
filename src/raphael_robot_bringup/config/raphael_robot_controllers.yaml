@@ -8,11 +8,8 @@ controller_manager:
     diff_driver_controller:
       type: diff_drive_controller/DiffDriveController
 
-    snake_driver_controller:
+    snake_driver_controller_mock:
       type: forward_command_controller/ForwardCommandController
-
-#    snake_driver_controller_mock:
-#      type: forward_command_controller/ForwardCommandController
 
 diff_driver_controller:
   ros__parameters:
@@ -36,12 +33,8 @@ diff_driver_controller:
     angular.z.max_velocity: 1.0
     angular.z.min_velocity: -1.0
 
-snake_driver_controller:
+snake_driver_controller_mock:
   ros__parameters:
-    joints: [ "s1_link06_link07_joint", "s1_link07_link08_joint", "s1_link08_link09_joint", "s1_link09b_link10_joint", "s1_link10_link11_joint" ]
+    joints: [ "base_s1_link00", "s1_link01_link02_joint", "s1_link02_link03_joint", "s1_link03_link04_joint", "s1_link04_link05_joint", "s1_link05_link06_joint" ,
+              "s1_link06_link07_joint", "s1_link07_link08_joint", "s1_link08_link09_joint", "s1_link09b_link10_joint", "s1_link10_link11_joint" ]
     interface_name: "position"
-
-#snake_driver_controller_mock:
-#  ros__parameters:
-#    joints: [ "base_s1_link00","s1_link01_link02_joint", "s1_link02_link03_joint", "s1_link03_link04_joint", "s1_link04_link05_joint", "s1_link05_link06_joint" ]
-#    interface_name: "position"
