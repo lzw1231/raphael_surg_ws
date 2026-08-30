@@ -19,18 +19,18 @@ namespace snake_hardware{
             return ret;
         }
 
-        // const auto& hw_params = params.hardware_info.hardware_parameters;
-        //
-        // motor_ids_[S1_06_07] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_06_07")));
-        // motor_ids_[S1_07_08] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_07_08")));
-        // motor_ids_[S1_08_09] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_08_09")));
-        // motor_ids_[S1_09B_10] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_09b_10")));
-        // motor_ids_[S1_10_11] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_10_11")));
-        //
-        // st3215_port_ = hw_params.at("st3215_port");
-        // baud_ = static_cast<int>(std::stoi(hw_params.at("baud")));
-        //
-        // sms_sts_ = std::make_shared<SMS_STS>();
+        const auto& hw_params = params.hardware_info.hardware_parameters;
+
+        motor_ids_[S1_06_07] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_06_07")));
+        motor_ids_[S1_07_08] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_07_08")));
+        motor_ids_[S1_08_09] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_08_09")));
+        motor_ids_[S1_09B_10] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_09b_10")));
+        motor_ids_[S1_10_11] = static_cast<u8>(std::stoi(hw_params.at("s1_motor_10_11")));
+
+        st3215_port_ = hw_params.at("st3215_port");
+        baud_ = static_cast<int>(std::stoi(hw_params.at("baud")));
+
+        sms_sts_ = std::make_shared<SMS_STS>();
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -39,24 +39,24 @@ namespace snake_hardware{
     hardware_interface::CallbackReturn SnakeHardwareInterface::on_configure(const rclcpp_lifecycle::State& previous_state) {
         (void)previous_state;
 
-        // if (!sms_sts_->begin(baud_, st3215_port_.c_str())) {
-        //     RCLCPP_ERROR(get_logger(), "串口初始化失败: 无法连接设备 %s", st3215_port_.c_str());
-        //     return hardware_interface::CallbackReturn::ERROR;
-        // }
-        //
-        // RCLCPP_INFO(get_logger(), "[ST3215] 串口已初始化: %s @ %d bps", st3215_port_.c_str(), baud_);
-        //
-        // // 舵机 Ping 检测
-        // for (size_t i = 0; i < motor_ids_.size(); ++i) {
-        //     const u8 id = motor_ids_[i];
-        //     const u8 ping_id = sms_sts_->Ping(id);
-        //     if (motor_ids_[i] != sms_sts_->Ping(id)) {
-        //         RCLCPP_ERROR(get_logger(), "舵机Ping检测失败: 期望ID %u, 实际返回 %u",
-        //                      static_cast<unsigned>(id),
-        //                      static_cast<unsigned>(ping_id));
-        //         return hardware_interface::CallbackReturn::ERROR;
-        //     }
-        // }
+        if (!sms_sts_->begin(baud_, st3215_port_.c_str())) {
+            RCLCPP_ERROR(get_logger(), "串口初始化失败: 无法连接设备 %s", st3215_port_.c_str());
+            return hardware_interface::CallbackReturn::ERROR;
+        }
+
+        RCLCPP_INFO(get_logger(), "[ST3215] 串口已初始化: %s @ %d bps", st3215_port_.c_str(), baud_);
+
+        // 舵机 Ping 检测
+        for (size_t i = 0; i < motor_ids_.size(); ++i) {
+            const u8 id = motor_ids_[i];
+            const u8 ping_id = sms_sts_->Ping(id);
+            if (motor_ids_[i] != sms_sts_->Ping(id)) {
+                RCLCPP_ERROR(get_logger(), "舵机Ping检测失败: 期望ID %u, 实际返回 %u",
+                             static_cast<unsigned>(id),
+                             static_cast<unsigned>(ping_id));
+                return hardware_interface::CallbackReturn::ERROR;
+            }
+        }
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -74,23 +74,23 @@ namespace snake_hardware{
     hardware_interface::CallbackReturn SnakeHardwareInterface::on_activate(const rclcpp_lifecycle::State& previous_state) {
         (void)previous_state;
 
-        // RCLCPP_INFO(get_logger(), "所有舵机回中立位 2047...");
-        //
-        // // 准备5个电机的目标位置、速度、加速度数组
-        // std::array<s16, 5> positions;
-        // std::array<u16, 5> speeds;
-        // std::array<u8, 5> accs;
-        //
-        // positions.fill(POSITION_ZERO);
-        // speeds.fill(3400);
-        // accs.fill(50);
-        //
-        // // 舵机同步运行
-        // sms_sts_->SyncWritePosEx(motor_ids_.data(), motor_ids_.size(), positions.data(), speeds.data(), accs.data());
-        //
-        // rclcpp::sleep_for(std::chrono::milliseconds(3000));
-        //
-        // RCLCPP_INFO(get_logger(), "所有舵机已到达中立位...");
+        RCLCPP_INFO(get_logger(), "所有舵机回中立位 2047...");
+
+        // 准备5个电机的目标位置、速度、加速度数组
+        std::array<s16, 5> positions;
+        std::array<u16, 5> speeds;
+        std::array<u8, 5> accs;
+
+        positions.fill(POSITION_ZERO);
+        speeds.fill(3400);
+        accs.fill(50);
+
+        // 舵机同步运行
+        sms_sts_->SyncWritePosEx(motor_ids_.data(), motor_ids_.size(), positions.data(), speeds.data(), accs.data());
+
+        rclcpp::sleep_for(std::chrono::milliseconds(3000));
+
+        RCLCPP_INFO(get_logger(), "所有舵机已到达中立位...");
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -99,23 +99,23 @@ namespace snake_hardware{
         const rclcpp_lifecycle::State& previous_state) {
         (void)previous_state;
 
-        // RCLCPP_INFO(get_logger(), "所有舵机回零位...");
-        //
-        // // 准备5个电机的目标位置、速度、加速度数组
-        // std::array<s16, 5> positions;
-        // std::array<u16, 5> speeds;
-        // std::array<u8, 5> accs;
-        //
-        // positions.fill(0);
-        // speeds.fill(3400);
-        // accs.fill(50);
-        //
-        // // 舵机同步运行
-        // sms_sts_->SyncWritePosEx(motor_ids_.data(), motor_ids_.size(), positions.data(), speeds.data(), accs.data());
-        //
-        // rclcpp::sleep_for(std::chrono::milliseconds(3000));
-        //
-        // RCLCPP_INFO(get_logger(), "所有舵机已到达零位...");
+        RCLCPP_INFO(get_logger(), "所有舵机回零位...");
+
+        // 准备5个电机的目标位置、速度、加速度数组
+        std::array<s16, 5> positions;
+        std::array<u16, 5> speeds;
+        std::array<u8, 5> accs;
+
+        positions.fill(0);
+        speeds.fill(3400);
+        accs.fill(50);
+
+        // 舵机同步运行
+        sms_sts_->SyncWritePosEx(motor_ids_.data(), motor_ids_.size(), positions.data(), speeds.data(), accs.data());
+
+        rclcpp::sleep_for(std::chrono::milliseconds(3000));
+
+        RCLCPP_INFO(get_logger(), "所有舵机已到达零位...");
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
