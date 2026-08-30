@@ -18,9 +18,10 @@ namespace tricycle_hardware{
         hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
     private:
-        std::shared_ptr<SMS_STS> servo_;
+        std::shared_ptr<SMS_STS> sms_sts_;
         u8 left_motor_id_ = 255;
         u8 right_motor_id_ = 255;
+        int baud_ = 0;
         std::string st3215_port_;
     };
 } //namespace tricycle_hardware

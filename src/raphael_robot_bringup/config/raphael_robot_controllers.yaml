@@ -5,13 +5,13 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-    diff_driver_controller:
+    tricycle_diff_driver_controller:
       type: diff_drive_controller/DiffDriveController
 
     snake_driver_controller_mock:
       type: forward_command_controller/ForwardCommandController
 
-diff_driver_controller:
+tricycle_diff_driver_controller:
   ros__parameters:
     left_wheel_names: [ "base_left_wheel_joint" ]
     right_wheel_names: [ "base_right_wheel_joint" ]

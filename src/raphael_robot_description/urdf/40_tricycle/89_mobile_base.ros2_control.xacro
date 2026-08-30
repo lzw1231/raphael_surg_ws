@@ -3,17 +3,18 @@
 
     <ros2_control name="TricycleHardware" type="system">
 
-        <hardware>
-            <plugin>mock_components/GenericSystem</plugin>
-            <param name="calculate_dynamics">true</param>
-        </hardware>
-
         <!--        <hardware>-->
-        <!--            <plugin>tricycle_hardware/TricycleHardwareInterface</plugin>-->
-        <!--            <param name="left_motor_id">10</param>-->
-        <!--            <param name="right_motor_id">20</param>-->
-        <!--            <param name="st3215_port">/dev/ttyUSB2</param>-->
+        <!--            <plugin>mock_components/GenericSystem</plugin>-->
+        <!--            <param name="calculate_dynamics">true</param>-->
         <!--        </hardware>-->
+
+        <hardware>
+            <plugin>tricycle_hardware/TricycleHardwareInterface</plugin>
+            <param name="left_motor_id">9</param>
+            <param name="right_motor_id">10</param>
+            <param name="baud">1000000</param>
+            <param name="st3215_port">/dev/ttyACM0</param>
+        </hardware>
 
         <joint name="base_right_wheel_joint">
             <command_interface name="velocity"/>

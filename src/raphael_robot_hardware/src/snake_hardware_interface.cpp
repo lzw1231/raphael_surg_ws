@@ -3,11 +3,15 @@
 namespace snake_hardware{
     namespace{
         // 位置转换：计数 → rad
-        constexpr double POSITION_COUNT_TO_RAD = 2.0 * M_PI / 4095.0;
+        constexpr double POSITION_COUNT_TO_RAD = 2.0 * M_PI / 4095;
         // 位置转换：rad → 计数
-        constexpr double RAD_TO_POSITION_COUNT = 2047.5 / M_PI;
+        constexpr double RAD_TO_POSITION_COUNT = 4095 / (2.0 * M_PI);
         // 舵机中立位置
         constexpr s16 POSITION_ZERO = 2047;
+        // 速度转换：step/s → rad/s
+        constexpr double VELOCITY_STEP_TO_RAD_PER_SEC = 2.0 * M_PI / 4095;
+        // 速度转换：rad/s → step/s
+        constexpr double VELOCITY_RAD_PER_SEC_TO_STEP = 4095 / (2.0 * M_PI);
     } // 匿名命名空间,确保这些常量仅在本编译单元可见
 
 
@@ -51,7 +55,7 @@ namespace snake_hardware{
             const u8 id = motor_ids_[i];
             const u8 ping_id = sms_sts_->Ping(id);
             if (motor_ids_[i] != sms_sts_->Ping(id)) {
-                RCLCPP_ERROR(get_logger(), "舵机Ping检测失败: 期望ID %u, 实际返回 %u",
+                RCLCPP_ERROR(get_logger(), "snake舵机Ping检测失败: 期望ID %u, 实际返回 %u",
                              static_cast<unsigned>(id),
                              static_cast<unsigned>(ping_id));
                 return hardware_interface::CallbackReturn::ERROR;
@@ -74,7 +78,11 @@ namespace snake_hardware{
     hardware_interface::CallbackReturn SnakeHardwareInterface::on_activate(const rclcpp_lifecycle::State& previous_state) {
         (void)previous_state;
 
-        RCLCPP_INFO(get_logger(), "所有舵机回中立位 2047...");
+        for (size_t i = 0; i < motor_ids_.size(); ++i) {
+            sms_sts_->ServoMode(motor_ids_[i]);
+        }
+
+        RCLCPP_INFO(get_logger(), "snake舵机已设为位置模式");
 
         // 准备5个电机的目标位置、速度、加速度数组
         std::array<s16, 5> positions;
@@ -90,7 +98,7 @@ namespace snake_hardware{
 
         rclcpp::sleep_for(std::chrono::milliseconds(3000));
 
-        RCLCPP_INFO(get_logger(), "所有舵机已到达中立位...");
+        RCLCPP_INFO(get_logger(), "snake舵机已到达中立位2047...");
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -98,8 +106,6 @@ namespace snake_hardware{
     hardware_interface::CallbackReturn SnakeHardwareInterface::on_deactivate(
         const rclcpp_lifecycle::State& previous_state) {
         (void)previous_state;
-
-        RCLCPP_INFO(get_logger(), "所有舵机回零位...");
 
         // 准备5个电机的目标位置、速度、加速度数组
         std::array<s16, 5> positions;
@@ -115,7 +121,7 @@ namespace snake_hardware{
 
         rclcpp::sleep_for(std::chrono::milliseconds(3000));
 
-        RCLCPP_INFO(get_logger(), "所有舵机已到达零位...");
+        RCLCPP_INFO(get_logger(), "snake舵机已回机械零位...");
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }

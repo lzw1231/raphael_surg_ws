@@ -50,11 +50,11 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster"]
     )
 
-    # 激活差分驱动控制器：负责底盘运动控制
-    diff_driver_controller_node = Node(
+    # 激活三轮小车差分驱动控制器：负责底盘运动控制
+    tricycle_diff_driver_controller_node = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=["diff_driver_controller"]
+        arguments=["tricycle_diff_driver_controller"]
     )
 
     # 激活蛇形驱动控制器：用于控制蛇形驱动的运动模式
@@ -83,7 +83,7 @@ def generate_launch_description():
         robot_state_publisher_node,
         controller_manager_node,
         joint_state_broadcaster_node,
-        diff_driver_controller_node,
+        tricycle_diff_driver_controller_node,
         # snake_driver_controller_node,
         snake_driver_controller_mock_node,
         rviz_node
