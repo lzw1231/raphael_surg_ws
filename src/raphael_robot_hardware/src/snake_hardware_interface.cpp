@@ -90,8 +90,8 @@ namespace snake_hardware{
         std::array<u8, 5> accs;
 
         positions.fill(POSITION_ZERO);
-        speeds.fill(3400);
-        accs.fill(50);
+        speeds.fill(0);
+        accs.fill(0);
 
         // 舵机同步运行
         sms_sts_->SyncWritePosEx(motor_ids_.data(), motor_ids_.size(), positions.data(), speeds.data(), accs.data());
@@ -108,13 +108,13 @@ namespace snake_hardware{
         (void)previous_state;
 
         // 准备5个电机的目标位置、速度、加速度数组
-        std::array<s16, 5> positions;
-        std::array<u16, 5> speeds;
-        std::array<u8, 5> accs;
+        std::array<s16, 5> positions{};
+        std::array<u16, 5> speeds{};
+        std::array<u8, 5> accs{};
 
         positions.fill(0);
-        speeds.fill(3400);
-        accs.fill(50);
+        speeds.fill(0);
+        accs.fill(0);
 
         // 舵机同步运行
         sms_sts_->SyncWritePosEx(motor_ids_.data(), motor_ids_.size(), positions.data(), speeds.data(), accs.data());
@@ -159,17 +159,6 @@ namespace snake_hardware{
     hardware_interface::return_type SnakeHardwareInterface::write(const rclcpp::Time& time, const rclcpp::Duration& period) {
         (void)time;
         (void)period;
-        struct JointCmd {
-            std::string name;
-            double& value;
-        };
-
-        // 变量定义
-        double s1_06_07_pos_rad = get_command("s1_link06_link07_joint/position");
-        double s1_07_08_pos_rad = get_command("s1_link07_link08_joint/position");
-        double s1_08_09_pos_rad = get_command("s1_link08_link09_joint/position");
-        double s1_09B_10_pos_rad = get_command("s1_link09b_link10_joint/position");
-        double s1_10_11_pos_rad = get_command("s1_link10_link11_joint/position");
 
         double s1_06_07_pos_step = get_command("s1_link06_link07_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
         double s1_07_08_pos_step = get_command("s1_link07_link08_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
@@ -177,33 +166,25 @@ namespace snake_hardware{
         double s1_09B_10_pos_step = get_command("s1_link09b_link10_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
         double s1_10_11_pos_step = get_command("s1_link10_link11_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
 
-
-        std::vector<JointCmd> cmd_list = {
-            {"s1_link06_link07_joint", s1_06_07_pos_rad},
-            {"s1_link07_link08_joint", s1_07_08_pos_rad},
-            {"s1_link08_link09_joint", s1_08_09_pos_rad},
-            {"s1_link09b_link10_joint", s1_09B_10_pos_rad},
-            {"s1_link10_link11_joint", s1_10_11_pos_rad},
-        };
-
-        bool has_error = false;
-        for (auto& item : cmd_list) {
-            if (std::isnan(item.value)) {
-                RCLCPP_ERROR(get_logger(), "[NaN DETECT] joint: %s , raw value=%f", item.name.c_str(), item.value);
-                has_error = true;
-            }
-        }
-
-        if (has_error) {
-            RCLCPP_WARN(get_logger(), "Abort motor write due to NaN command(s)");
+        // 检查是否有任何命令值为 NaN（可能是未初始化的命令）
+        if (std::isnan(s1_06_07_pos_step) || std::isnan(s1_07_08_pos_step) || std::isnan(s1_08_09_pos_step) || std::isnan(s1_09B_10_pos_step) ||
+            std::isnan(s1_10_11_pos_step)) {
             return hardware_interface::return_type::OK;
         }
 
-        sms_sts_->WritePosEx(motor_ids_[S1_06_07], static_cast<u16>(s1_06_07_pos_step), 3400, 50);
-        sms_sts_->WritePosEx(motor_ids_[S1_07_08], static_cast<u16>(s1_07_08_pos_step), 3400, 50);
-        sms_sts_->WritePosEx(motor_ids_[S1_08_09], static_cast<u16>(s1_08_09_pos_step), 3400, 50);
-        sms_sts_->WritePosEx(motor_ids_[S1_09B_10], static_cast<u16>(s1_09B_10_pos_step), 3400, 50);
-        sms_sts_->WritePosEx(motor_ids_[S1_10_11], static_cast<u16>(s1_10_11_pos_step), 3400, 50);
+        std::array<s16, 5> positions = {
+            static_cast<s16>(s1_06_07_pos_step),
+            static_cast<s16>(s1_07_08_pos_step),
+            static_cast<s16>(s1_08_09_pos_step),
+            static_cast<s16>(s1_09B_10_pos_step),
+            static_cast<s16>(s1_10_11_pos_step)
+        };
+        std::array<u16, 5> speeds{};
+        std::array<u8, 5> accs{};
+        speeds.fill(0);
+        accs.fill(0);
+
+        sms_sts_->SyncWritePosEx(motor_ids_.data(), motor_ids_.size(), positions.data(), speeds.data(), accs.data());
 
         return hardware_interface::return_type::OK;
     }

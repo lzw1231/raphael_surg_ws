@@ -22,4 +22,10 @@
         <origin xyz="0 0 0.033" rpy="0 0 0"/>
     </joint>
 
+
+    <gazebo>
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>$(find raphael_robot)/config/tricycle_control.yaml</parameters>
+    </gazebo>
+
 </robot>

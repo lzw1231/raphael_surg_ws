@@ -3,7 +3,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <!-- 长方体惯性宏           params: m质量(kg), x/y/z长宽高(m), o_xyz重心偏移, o_rpy重心姿态 -->
-    <xacro:macro name="box_inertia" params="m x y z o_xyz o_rpy">
+    <xacro:macro name="tricycle_box_inertia" params="m x y z o_xyz o_rpy">
         <inertial>
             <mass value="${m}"/>
             <origin xyz="${o_xyz}" rpy="${o_rpy}"/>
@@ -14,7 +14,7 @@
     </xacro:macro>
 
     <!-- 实心圆柱惯性宏（杆轴线沿Z）params: m质量(kg), r外半径(m), l杆长(m), o_xyz重心偏移, o_rpy重心姿态   -->
-    <xacro:macro name="cylinder_inertia" params="m r l o_xyz o_rpy">
+    <xacro:macro name="tricycle_cylinder_inertia" params="m r l o_xyz o_rpy">
         <inertial>
             <mass value="${m}"/>
             <origin xyz="${o_xyz}" rpy="${o_rpy}"/>
@@ -25,7 +25,7 @@
     </xacro:macro>
 
     <!-- 实心球体惯性宏  params: m质量(kg), r球半径(m), o_xyz重心偏移, o_rpy重心姿态  -->
-    <xacro:macro name="sphere_inertia" params="m r o_xyz o_rpy">
+    <xacro:macro name="tricycle_sphere_inertia" params="m r o_xyz o_rpy">
         <inertial>
             <mass value="${m}"/>
             <origin xyz="${o_xyz}" rpy="${o_rpy}"/>
@@ -36,7 +36,7 @@
     </xacro:macro>
 
     <!-- 空心圆筒惯性宏（轴线沿Z） params: m总质量(kg), r_out外半径(m), r_in内孔半径(m), l杆长(m), o_xyz重心偏移, o_rpy重心姿态 -->
-    <xacro:macro name="hollow_cylinder_inertia" params="m r_out r_in l o_xyz o_rpy">
+    <xacro:macro name="tricycle_hollow_cylinder_inertia" params="m r_out r_in l o_xyz o_rpy">
         <inertial>
             <mass value="${m}"/>
             <origin xyz="${o_xyz}" rpy="${o_rpy}"/>

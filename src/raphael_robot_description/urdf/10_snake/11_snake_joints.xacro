@@ -21,7 +21,7 @@
     <xacro:property name="effort" value="1000"/>
 
     <!-- ========= 最大速度 rad/s ======== -->
-    <xacro:property name="velocity" value="0.5"/>
+    <xacro:property name="velocity" value="6"/>
 
     <!-- ========= 旋转角度 /度 ======== -->
     <xacro:property name="rad_30" value="${30 * pi / 180.0}"/>
