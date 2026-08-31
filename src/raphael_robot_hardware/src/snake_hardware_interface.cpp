@@ -165,18 +165,25 @@ namespace snake_hardware{
         };
 
         // 变量定义
-        double s1_06_07_pos_raw = get_command("s1_link06_link07_joint/position");
-        double s1_07_08_pos_raw = get_command("s1_link07_link08_joint/position");
-        double s1_08_09_pos_raw = get_command("s1_link08_link09_joint/position");
-        double s1_09B_10_pos_raw = get_command("s1_link09b_link10_joint/position");
-        double s1_10_11_pos_raw = get_command("s1_link10_link11_joint/position");
+        double s1_06_07_pos_rad = get_command("s1_link06_link07_joint/position");
+        double s1_07_08_pos_rad = get_command("s1_link07_link08_joint/position");
+        double s1_08_09_pos_rad = get_command("s1_link08_link09_joint/position");
+        double s1_09B_10_pos_rad = get_command("s1_link09b_link10_joint/position");
+        double s1_10_11_pos_rad = get_command("s1_link10_link11_joint/position");
+
+        double s1_06_07_pos_step = get_command("s1_link06_link07_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
+        double s1_07_08_pos_step = get_command("s1_link07_link08_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
+        double s1_08_09_pos_step = get_command("s1_link08_link09_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
+        double s1_09B_10_pos_step = get_command("s1_link09b_link10_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
+        double s1_10_11_pos_step = get_command("s1_link10_link11_joint/position") * RAD_TO_POSITION_COUNT + POSITION_ZERO;
+
 
         std::vector<JointCmd> cmd_list = {
-            {"s1_link06_link07_joint", s1_06_07_pos_raw},
-            {"s1_link07_link08_joint", s1_07_08_pos_raw},
-            {"s1_link08_link09_joint", s1_08_09_pos_raw},
-            {"s1_link09b_link10_joint", s1_09B_10_pos_raw},
-            {"s1_link10_link11_joint", s1_10_11_pos_raw},
+            {"s1_link06_link07_joint", s1_06_07_pos_rad},
+            {"s1_link07_link08_joint", s1_07_08_pos_rad},
+            {"s1_link08_link09_joint", s1_08_09_pos_rad},
+            {"s1_link09b_link10_joint", s1_09B_10_pos_rad},
+            {"s1_link10_link11_joint", s1_10_11_pos_rad},
         };
 
         bool has_error = false;
@@ -192,13 +199,11 @@ namespace snake_hardware{
             return hardware_interface::return_type::OK;
         }
 
-
-        // servo_->WritePosEx(motor_ids_[S1_06_07], static_cast<u16>(s1_06_07_pos), 3400, 50);
-        // servo_->WritePosEx(motor_ids_[S1_07_08], static_cast<u16>(s1_07_08_pos), 3400, 50);
-        // servo_->WritePosEx(motor_ids_[S1_08_09], static_cast<u16>(s1_08_09_pos), 3400, 50);
-        // servo_->WritePosEx(motor_ids_[S1_09B_10], static_cast<u16>(s1_09B_10_pos), 3400, 50);
-        // servo_->WritePosEx(motor_ids_[S1_10_11], static_cast<u16>(s1_10_11_pos), 3400, 50);
-
+        sms_sts_->WritePosEx(motor_ids_[S1_06_07], static_cast<u16>(s1_06_07_pos_step), 3400, 50);
+        sms_sts_->WritePosEx(motor_ids_[S1_07_08], static_cast<u16>(s1_07_08_pos_step), 3400, 50);
+        sms_sts_->WritePosEx(motor_ids_[S1_08_09], static_cast<u16>(s1_08_09_pos_step), 3400, 50);
+        sms_sts_->WritePosEx(motor_ids_[S1_09B_10], static_cast<u16>(s1_09B_10_pos_step), 3400, 50);
+        sms_sts_->WritePosEx(motor_ids_[S1_10_11], static_cast<u16>(s1_10_11_pos_step), 3400, 50);
 
         return hardware_interface::return_type::OK;
     }
