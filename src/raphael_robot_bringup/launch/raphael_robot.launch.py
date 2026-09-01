@@ -43,7 +43,7 @@ def generate_launch_description():
         parameters=[robot_controllers_yaml_path]
     )
 
-    # 激活关节状态广播器：用于发布非受控关节（如被动轮或传感器支架）的状态
+    # 激活关节状态广播器：用于发布ros2_control中定义的关节状态信息
     joint_state_broadcaster_node = Node(
         package='controller_manager',
         executable="spawner",
@@ -69,6 +69,12 @@ def generate_launch_description():
         package='controller_manager',
         executable='spawner',
         arguments=["snake_driver_controller_mock"]
+    )
+
+    snake_driver_controller_my_node = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=["snake_driver_controller_my"]
     )
 
     # RViz 可视化节点：加载指定的配置文件以展示机器人模型
