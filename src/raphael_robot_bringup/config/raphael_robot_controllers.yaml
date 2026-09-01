@@ -14,6 +14,9 @@ controller_manager:
     snake_driver_controller_mock:
       type: forward_command_controller/ForwardCommandController
 
+    my_controller:
+      type: my_controller/MyController
+
 tricycle_diff_driver_controller:
   ros__parameters:
     left_wheel_names: [ "base_left_wheel_joint" ]
@@ -45,3 +48,9 @@ snake_driver_controller:
   ros__parameters:
     joints: [ "s1_link06_link07_joint", "s1_link07_link08_joint", "s1_link08_link09_joint", "s1_link09b_link10_joint", "s1_link10_link11_joint" ]
     interface_name: "position"
+
+my_controller:
+  ros__parameters:
+    joints: [ "s1_link09b_link10_joint", "s1_link10_link11_joint" ]
+    interface_name: "position"
+    coefficient: 0.75

@@ -1,6 +1,6 @@
 # CMake 最低版本要求
 cmake_minimum_required(VERSION 4.0)
-project(raphael_robot_hardware)
+project(raphael_robot_controllers)
 
 # 指定 C++17 标准并强制生效
 set(CMAKE_CXX_STANDARD 17)
@@ -11,46 +11,36 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif ()
 
-# Clang 专属：抑制 C2Y 扩展及非抽象类虚析构删除警告
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-c2y-extensions)
-    add_compile_options(-Wno-delete-non-abstract-non-virtual-dtor)
-endif ()
-
 # 声明 ROS 2 及第三方依赖
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(hardware_interface REQUIRED)
+find_package(controller_interface REQUIRED)
+find_package(example_interfaces REQUIRED)
 find_package(pluginlib REQUIRED)
 
 # 构建共享库目标
 add_library(${PROJECT_NAME} SHARED
-        src/tricycle_hardware_interface.cpp
-        src/snake_hardware_interface.cpp
+        src/my_controller.cpp
 )
 
 # 指定私有头文件搜索路径
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/sts3215/include
 )
 
 # 关联 ROS 2 依赖（自动注入 include/link/compile 属性）
 ament_target_dependencies(${PROJECT_NAME}
         rclcpp
         rclcpp_lifecycle
+        controller_interface
         hardware_interface
+        example_interfaces
         pluginlib
 )
 
-# 链接第三方静态库
-target_link_libraries(${PROJECT_NAME}
-        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/sts3215/lib/libSCServo.a
-)
-
-# 导出硬件接口插件描述文件供 pluginlib 运行时加载
-pluginlib_export_plugin_description_file(hardware_interface raphael_robot_hardware_interface_plugin.xml)
+# 导出 controller 插件描述文件供 pluginlib 运行时加载
+pluginlib_export_plugin_description_file(controller_interface raphael_robot_controller_plugin.xml)
 
 # 安装共享库至 lib 目录
 install(TARGETS ${PROJECT_NAME}
