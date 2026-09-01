@@ -2,6 +2,7 @@
 build/
 install/
 log/
+compile_commands.json
 
 # IDE 配置文件
 .vscode/

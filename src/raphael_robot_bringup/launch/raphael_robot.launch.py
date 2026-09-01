@@ -58,10 +58,16 @@ def generate_launch_description():
     )
 
     # 激活蛇形驱动控制器：用于控制蛇形驱动的运动模式
-    snake_driver_controller_node = Node(
+    # snake_driver_controller_node = Node(
+    #     package='controller_manager',
+    #     executable='spawner',
+    #     arguments=["snake_driver_controller"]
+    # )
+
+    my_controller_node = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=["snake_driver_controller"]
+        arguments=["my_controller"]
     )
 
     # 激活蛇形驱动控制器_模拟：用于在仿真环境中测试蛇形驱动控制器
@@ -69,12 +75,6 @@ def generate_launch_description():
         package='controller_manager',
         executable='spawner',
         arguments=["snake_driver_controller_mock"]
-    )
-
-    snake_driver_controller_my_node = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=["snake_driver_controller_my"]
     )
 
     # RViz 可视化节点：加载指定的配置文件以展示机器人模型
@@ -90,7 +90,8 @@ def generate_launch_description():
         controller_manager_node,
         joint_state_broadcaster_node,
         tricycle_diff_driver_controller_node,
-        snake_driver_controller_node,
+        # snake_driver_controller_node,
+        my_controller_node,
         snake_driver_controller_mock_node,
         rviz_node
     ])

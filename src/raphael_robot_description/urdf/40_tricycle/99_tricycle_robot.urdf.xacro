@@ -4,5 +4,5 @@
     <xacro:include filename="00_common_properties.xacro"/>
     <xacro:include filename="00_tricycle_inertia.xacro"/>
     <xacro:include filename="69_mobile_base.xacro"/>
-    <xacro:include filename="89_tricycle_gazebo.xacro"/>
+    <xacro:include filename="89_mobile_base.ros2_control.xacro"/>
 </robot>

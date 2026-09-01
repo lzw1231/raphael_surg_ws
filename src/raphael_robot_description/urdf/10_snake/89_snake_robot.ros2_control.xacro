@@ -3,6 +3,11 @@
 
     <ros2_control name="SnakeHardware" type="system">
 
+        <!--        <hardware>-->
+        <!--            <plugin>mock_components/GenericSystem</plugin>-->
+        <!--            <param name="calculate_dynamics">true</param>-->
+        <!--        </hardware>-->
+
         <hardware>
             <plugin>snake_hardware/SnakeHardwareInterface</plugin>
             <param name="st3215_port">/dev/ttyACM0</param>
@@ -74,32 +79,6 @@
             <command_interface name="position"/>
             <state_interface name="position"/>
         </joint>
-
-        <!--  ========================== 以下就有足够的电机可以匹配了 ========================-->
-
-        <!--        <joint name="s1_link06_link07_joint">&ndash;&gt;-->
-        <!--            <command_interface name="position"/>-->
-        <!--            <state_interface name="position"/>-->
-        <!--        </joint>-->
-        <!--        <joint name="s1_link07_link08_joint">-->
-        <!--            <command_interface name="position"/>-->
-        <!--            <state_interface name="position"/>-->
-        <!--        </joint>-->
-
-        <!--        <joint name="s1_link08_link09_joint">-->
-        <!--            <command_interface name="position"/>-->
-        <!--            <state_interface name="position"/>-->
-        <!--        </joint>-->
-
-        <!--        <joint name="s1_link09b_link10_joint">-->
-        <!--            <command_interface name="position"/>-->
-        <!--            <state_interface name="position"/>-->
-        <!--        </joint>-->
-
-        <!--        <joint name="s1_link10_link11_joint">-->
-        <!--            <command_interface name="position"/>-->
-        <!--            <state_interface name="position"/>-->
-        <!--        </joint>-->
 
     </ros2_control>
 
