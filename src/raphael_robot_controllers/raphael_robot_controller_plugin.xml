@@ -1,8 +1,0 @@
-<library path="raphael_robot_controllers">
-    <class name="my_controller/MyController"
-           type="my_controller::MyController"
-           base_class_type="controller_interface::ControllerInterface">
-        <description>自定义的带滤波转发关节指令的控制器</description>
-    </class>
-
-</library>
