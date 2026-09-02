@@ -30,13 +30,12 @@ YELLOW='\033[0;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-SYM_OK="✓"
-SYM_FAIL="✗"
+SYM_OK="✔"
+SYM_FAIL="✘"
 SYM_WARN="⚠"
 
 # Shared colcon build arguments (single source of truth)
 COLCON_BUILD_ARGS=(
-    --symlink-install
     --event-handlers console_direct+ status+
     --cmake-args
         -G Ninja
