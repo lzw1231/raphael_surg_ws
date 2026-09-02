@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.11)
-project(third_party)
+cmake_minimum_required(VERSION 3.28)
+project(fd)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS} CACHE INTERNAL "")
 
 set(FD_SDK_VERSION "3.17.8")
 
@@ -18,7 +20,7 @@ list(GET VERSION_SDK_LIST 0 VERSION_SDK_MAJOR)
 
 set(DHD_LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/libdhd.so.${FD_SDK_VERSION})
 set(DRD_LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/libdrd.so.${FD_SDK_VERSION})
-set(ST_LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/libSCServo.so)
+
 
 # ==========================================
 # 2. Setup vendor library (完全照搬官方)
@@ -27,7 +29,7 @@ add_library(${PROJECT_NAME} INTERFACE)
 
 target_include_directories(${PROJECT_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:.>
 )
 
 # 【核心天机】：官方直接写死 CMAKE_INSTALL_PREFIX 绝对路径！
@@ -35,7 +37,6 @@ target_include_directories(${PROJECT_NAME} INTERFACE
 target_link_libraries(${PROJECT_NAME} INTERFACE
         ${CMAKE_INSTALL_PREFIX}/lib/libdhd.so.${VERSION_SDK_MAJOR}
         ${CMAKE_INSTALL_PREFIX}/lib/libdrd.so.${VERSION_SDK_MAJOR}
-        ${CMAKE_INSTALL_PREFIX}/lib/libSCServo.so
 )
 
 # ==========================================
@@ -43,12 +44,11 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 # ==========================================
 install(
         DIRECTORY include/
-        DESTINATION include
+        DESTINATION .
 )
 
 install(FILES ${DHD_LIB_SRC} DESTINATION lib RENAME libdhd.so.${VERSION_SDK_MAJOR})
 install(FILES ${DRD_LIB_SRC} DESTINATION lib RENAME libdrd.so.${VERSION_SDK_MAJOR})
-install(FILES ${ST_LIB_SRC} DESTINATION lib)
 
 # 【核心天机】：只 install ${PROJECT_NAME}，绝不 install dhd/drd！
 install(
