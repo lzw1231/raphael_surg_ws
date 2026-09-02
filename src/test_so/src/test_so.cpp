@@ -6,5 +6,7 @@
 
 
 int main() {
-    std::cout << "test_so is OK" << std::endl;
+    int major, minor, release, revision;
+    dhdGetSDKVersion (&major, &minor, &release, &revision);
+    printf("Force Dimension SDK, version %i.%i.%i", major, minor, release);
 }
