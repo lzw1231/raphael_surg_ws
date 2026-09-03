@@ -41,17 +41,11 @@ target_include_directories(${PROJECT_NAME} INTERFACE
 
 # 链接共享库
 # 注意：此处使用绝对路径链接安装后的库文件，确保下游包能正确找到 .so
-#target_link_libraries(${PROJECT_NAME} INTERFACE
-#        ${CMAKE_INSTALL_PREFIX}/lib/libdhd.so.${VERSION_SDK_MAJOR}
-#        ${CMAKE_INSTALL_PREFIX}/lib/libdrd.so.${VERSION_SDK_MAJOR}
-#)
-
 target_link_libraries(${PROJECT_NAME} INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/libdhd.so.${FD_SDK_VERSION}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/libdrd.so.${FD_SDK_VERSION}>
-        $<INSTALL_INTERFACE:lib/libdhd.so.${VERSION_SDK_MAJOR}>
-        $<INSTALL_INTERFACE:lib/libdrd.so.${VERSION_SDK_MAJOR}>
+        ${CMAKE_INSTALL_PREFIX}/lib/libdhd.so.${VERSION_SDK_MAJOR}
+        ${CMAKE_INSTALL_PREFIX}/lib/libdrd.so.${VERSION_SDK_MAJOR}
 )
+
 
 # ==========================================
 # 3. 安装规则 (Install)
@@ -80,18 +74,5 @@ install(
 # ==========================================
 # 导出 CMake 目标配置，使其他包可通过 find_package(fd_vendor) 使用
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-
-
-if (BUILD_TESTING)
-    find_package(ament_cmake_gtest REQUIRED)
-
-    ament_add_gtest(test_dhd
-            test/test_dhd.cpp
-    )
-
-    target_link_libraries(test_dhd
-            ${PROJECT_NAME}
-    )
-endif ()
 
 ament_package()

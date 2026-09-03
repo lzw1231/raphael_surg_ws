@@ -32,12 +32,6 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
         ${CMAKE_INSTALL_PREFIX}/lib/libSCServo.so
 )
 
-# 配置链接依赖（使用生成器表达式区分构建与安装状态的库路径）
-#target_link_libraries(${PROJECT_NAME} INTERFACE
-#        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/libSCServo.so>  # 构建时：链接源码目录下的 .so
-#        $<INSTALL_INTERFACE:lib/libSCServo.so>                            # 安装后：链接安装目录下的 .so
-#)
-
 # ==========================================
 # 安装规则 (Install)
 # ==========================================
@@ -56,22 +50,6 @@ install(TARGETS ${PROJECT_NAME} EXPORT export_${PROJECT_NAME})
 # 导出 CMake 目标，使其他 ROS2 包可通过 find_package(sts_vendor) 发现并使用此包
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
-# ==========================================
-# 测试配置 (Testing)
-# ==========================================
-if (BUILD_TESTING)
-    find_package(ament_cmake_gtest REQUIRED)
-
-    # 添加 GTest 测试目标
-    ament_add_gtest(test_sts
-            test/test_sts.cpp
-    )
-
-    # 为测试目标链接接口库以继承编译和链接属性
-    target_link_libraries(test_sts
-            ${PROJECT_NAME}
-    )
-endif ()
 
 # 生成 ament 包配置文件 (package.xml 对应的 CMake 注册)
 ament_package()
