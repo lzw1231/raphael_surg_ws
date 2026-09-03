@@ -10,15 +10,15 @@ endif ()
 find_package(ament_cmake REQUIRED)
 
 # ✅ 分别 find 两个 vendor 包
-find_package(fd REQUIRED)
-find_package(st3215 REQUIRED)
+find_package(fd_vendor REQUIRED)
+find_package(sts_vendor REQUIRED)
 
 add_executable(test_so src/test_so.cpp)
 
 # ✅ 链接对应的 target
 target_link_libraries(test_so
-        fd::fd
-        st3215::st3215
+        fd_vendor::fd_vendor
+        sts_vendor::sts_vendor
 )
 
 install(TARGETS test_so DESTINATION lib/${PROJECT_NAME})

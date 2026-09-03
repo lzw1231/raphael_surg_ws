@@ -1,6 +1,6 @@
-#include <fd/dhd.hpp>
-#include <fd/drd.hpp>
-#include <st3215/SCServo.hpp>
+#include <fd_vendor/dhd.hpp>
+#include <fd_vendor/drd.hpp>
+#include <sts_vendor/SCServo.hpp>
 #include <iostream>
 #include <thread>
 #include <chrono>

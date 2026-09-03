@@ -115,6 +115,7 @@ def merge_ccj(old_path, new_path, out_path):
         if os.path.isfile(e.get('file', ''))
         and 'CMakeScratch' not in e.get('directory', '')
         and 'CompilerId' not in e.get('directory', '')
+        and 'gtest_vendor' not in e.get('file', '')
     ]
 
     with open(out_path, 'w') as f:
