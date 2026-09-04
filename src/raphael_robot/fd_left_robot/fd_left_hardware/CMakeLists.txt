@@ -1,26 +1,45 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.28)
 project(fd_left_hardware)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+include(GenerateExportHeader)
 
-# find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(fd_vendor REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(hardware_interface REQUIRED)
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+add_library(${PROJECT_NAME} SHARED
+        src/fd_left_hardware_interface.cpp
+)
+
+# ✅ 创建子目录 + 指定导出文件路径
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/fd_left_hardware)
+generate_export_header(${PROJECT_NAME}
+        EXPORT_MACRO_NAME FD_LEFT_HARDWARE_PUBLIC
+        EXPORT_FILE_NAME fd_left_hardware/fd_left_hardware_export.h
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        fd_vendor::fd_vendor
+        rclcpp::rclcpp
+        rclcpp_lifecycle::rclcpp_lifecycle
+        hardware_interface::hardware_interface
+)
+
+add_executable(test_main src/fd_left_hardware_interface.cpp)
+target_link_libraries(test_main PRIVATE ${PROJECT_NAME})
+
+# install 时也要对应新路径
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/fd_left_hardware/fd_left_hardware_export.h
+        DESTINATION include/fd_left_hardware
+)
 
 ament_package()
