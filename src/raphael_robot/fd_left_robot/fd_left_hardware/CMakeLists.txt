@@ -17,7 +17,7 @@ add_library(${PROJECT_NAME} SHARED
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/fd_left_hardware)
 generate_export_header(${PROJECT_NAME}
         EXPORT_MACRO_NAME FD_LEFT_HARDWARE_PUBLIC
-        EXPORT_FILE_NAME fd_left_hardware/fd_left_hardware_export.h
+        EXPORT_FILE_NAME fd_left_hardware/fd_left_hardware_visibility.h
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -38,7 +38,7 @@ target_link_libraries(test_main PRIVATE ${PROJECT_NAME})
 
 # install 时也要对应新路径
 install(FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/fd_left_hardware/fd_left_hardware_export.h
+        ${CMAKE_CURRENT_BINARY_DIR}/fd_left_hardware/fd_left_hardware_visibility.h
         DESTINATION include/fd_left_hardware
 )
 

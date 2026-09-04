@@ -5,12 +5,70 @@
 #include <thread>
 #include <chrono>
 #include <array>
+#include <string>
+
+bool initFDDevice(char& outDeviceID) {
+    // 1. 打开第一台可用设备
+    if (dhdOpenID(0) < 0) {
+        std::cerr << "[FD Init] Failed to open device: " << dhdErrorGetLastStr() << std::endl;
+        return false;
+    }
+
+    // 2. 获取当前激活的设备ID
+    char id = dhdGetDeviceID();
+
+    // 3. 检查设备是否被 DRD 机器人库支持
+    if (!drdIsSupported()) {
+        std::cerr << "[FD Init] Unsupported device type: " << dhdGetSystemName() << std::endl;
+        dhdClose();
+        return false;
+    }
+
+    std::cout << "[FD Init] " << dhdGetSystemName() << " detected (ID=" << (int)id << ")" << std::endl;
+
+    // 4. 自动初始化所有活动轴
+    if (drdAutoInit() < 0) {
+        std::cerr << "[FD Init] Auto-init failed: " << dhdErrorGetLastStr() << std::endl;
+        dhdClose();
+        return false;
+    }
+
+    // 5. 校验初始化结果
+    if (drdCheckInit() < 0) {
+        std::cerr << "[FD Init] Init validation failed: " << dhdErrorGetLastStr() << std::endl;
+        dhdClose();
+        return false;
+    }
+
+    // 6. 停止内部调节线程，但保持力输出使能
+    //    ⚠️ 这一步至关重要：停止后你才能用自己的控制循环接管力渲染
+    if (drdStop(true) < 0) {
+        std::cerr << "[FD Init] Failed to stop regulation: " << dhdErrorGetLastStr() << std::endl;
+        dhdClose();
+        return false;
+    }
+
+    std::cout << "[FD Init] Device successfully initialized." << std::endl;
+    outDeviceID = id;
+    return true;
+}
+
 
 int main() {
     // Force Dimension SDK version (already verified)
     int major, minor, release, revision;
     dhdGetSDKVersion(&major, &minor, &release, &revision);
     printf("Force Dimension SDK, version %i.%i.%i\n", major, minor, release);
+
+    if (drdOpen() < 0) {
+        std::cout << "error: failed to open device (" << dhdErrorGetLastStr() << ")" << std::endl;
+        dhdSleep(2.0);
+        return -1;
+    }
+
+    uint16_t serial = 0;
+    dhdGetSerialNumber(&serial, 0);
+    std::cout << "Device serial number: " << serial << std::endl;
 
     // ST3215舵机控制
     SMS_STS sms_sts;
@@ -71,3 +129,6 @@ int main() {
     std::cout << "测试完成" << std::endl;
     return 0;
 }
+
+
+
