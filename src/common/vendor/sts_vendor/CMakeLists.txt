@@ -10,6 +10,10 @@ if (NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif ()
 
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif ()
+
 # 依赖 ROS2 ament 构建系统
 find_package(ament_cmake REQUIRED)
 
