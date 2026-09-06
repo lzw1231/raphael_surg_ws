@@ -1,0 +1,7 @@
+<library path="raphael_hardware">
+    <class name="fd_left_hardware/FDLeftHardwareInterface"
+           type="fd_left_hardware::FDLeftHardwareInterface"
+           base_class_type="hardware_interface::SystemInterface">
+        <description>Force Dimension Omega7 FD Left master hardware interface</description>
+    </class>
+</library>
