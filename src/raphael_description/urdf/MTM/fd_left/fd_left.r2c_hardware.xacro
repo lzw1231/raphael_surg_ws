@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:macro
-        name="fd_ros2_control"
-        params="robot_id plugin_name:='FDHapticInterface' interface_id:='-1' interface_sn:='-1' effector_mass:='-1.0' use_fake_hardware:='false' use_orientation:='false' orientation_is_actuated:='false' use_clutch:='false' emulate_button:='false' ignore_orientation_readings:='false'">
+            name="fd_ros2_control"
+            params="robot_id plugin_name:='FDHapticInterface' interface_id:='-1' interface_sn:='-1' effector_mass:='-1.0' use_fake_hardware:='false' use_orientation:='false' orientation_is_actuated:='false' use_gripper:='false' emulate_button:='false' ignore_orientation_readings:='false'">
         <ros2_control name="${plugin_name}" type="system">
             <hardware>
                 <xacro:if value="${use_fake_hardware}">
@@ -54,9 +54,9 @@
                 <xacro:configure_rotation_joint joint_name="${robot_id}_yaw"/>
             </xacro:if>
 
-            <!-- Configure clutch -->
-            <xacro:if value="${use_clutch}">
-                <xacro:configure_translation_joint joint_name="${robot_id}_clutch"/>
+            <!-- Configure gripper -->
+            <xacro:if value="${use_gripper}">
+                <xacro:configure_translation_joint joint_name="${robot_id}_gripper"/>
             </xacro:if>
         </ros2_control>
     </xacro:macro>
