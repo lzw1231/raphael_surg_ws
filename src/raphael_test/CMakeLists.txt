@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(test_vendor)
+project(raphael_test)
 
 # 设定 C++ 标准（若未指定则默认为 C++17）
 set(CMAKE_CXX_STANDARD 17)
@@ -13,16 +13,16 @@ find_package(fd_vendor REQUIRED)
 find_package(sts_vendor REQUIRED)
 
 # 定义测试可执行文件
-add_executable(test_vendor src/test_vendor.cpp)
+add_executable(vendor_test src/vendor_test.cpp)
 
 # 链接 Vendor 库目标
-target_link_libraries(test_vendor
+target_link_libraries(vendor_test
         fd_vendor::fd_vendor
         sts_vendor::sts_vendor
 )
 
 # 安装可执行文件至指定目录
-install(TARGETS test_vendor DESTINATION lib/${PROJECT_NAME})
+install(TARGETS vendor_test DESTINATION lib/${PROJECT_NAME})
 
 # 生成 ament 包元数据
 ament_package()

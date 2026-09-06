@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-display_fd_left.launch.py
-用途：Force‑Dimension左手主手(MTM)离线可视化调试
+display_fd_right.launch.py
+用途：Force‑Dimension右手主手(MTM)离线可视化调试
 功能：加载xacro模型、robot_state_publisher、RViz、关节调试面板
 注意：仅可视化，不启动硬件驱动与ros2_control
 ROS2 Jazzy
@@ -15,11 +15,11 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
-    # fd_left 的 xacro 模型路径
-    robot_description_xacro = os.path.join(get_package_share_path("raphael_description"), 'urdf', 'MTM', 'fd_left', 'fd_left.config.xacro')
+    # fd_right 的 xacro 模型路径
+    robot_description_xacro = os.path.join(get_package_share_path("raphael_description"), 'urdf', 'MTM', 'fd_right', 'fd_right.config.xacro')
 
     # RViz 的 config 路径
-    robot_config_rviz = os.path.join(get_package_share_path("raphael_description"), 'rviz', 'fd_left_config.rviz')
+    robot_config_rviz = os.path.join(get_package_share_path("raphael_description"), 'rviz', 'fd_right_config.rviz')
 
     # 机器人状态发布：编译xacro，输出robot_description与TF树
     robot_state_publisher_node = Node(

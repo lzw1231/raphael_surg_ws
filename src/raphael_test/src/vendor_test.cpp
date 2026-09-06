@@ -7,10 +7,14 @@
 #include <array>
 
 int main() {
-    // Force Dimension SDK version (already verified)
-    int major, minor, release, revision;
-    dhdGetSDKVersion(&major, &minor, &release, &revision);
-    printf("Force Dimension SDK, version %i.%i.%i\n", major, minor, release);
+    int32_t id_left = dhdOpenSerial(40619);
+    int32_t id_right = dhdOpenSerial(40819);
+
+    std::cout << "========================================" << std::endl;
+    std::cout << "Force‑Dimension device open status" << std::endl;
+    std::cout << "  Left  (SN:40619) | id = " << id_left << (id_left >= 0 ? " | SUCCESS" : " | FAILED") << std::endl;
+    std::cout << "  Right (SN:40819) | id = " << id_right << (id_right >= 0 ? " | SUCCESS" : " | FAILED") << std::endl;
+    std::cout << "========================================" << std::endl;
 
     // ST3215舵机控制
     SMS_STS sms_sts;

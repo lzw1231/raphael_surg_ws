@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1
       Splitter Ratio: 0.5
     Tree Height: 1107
   - Class: rviz_common/Selection
@@ -55,23 +54,23 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        fd_left_base:
+        fd_right_base:
           Value: true
-        fd_left_ee:
+        fd_right_ee:
           Value: true
-        fd_left_pitch_link:
+        fd_right_pitch_link:
           Value: true
-        fd_left_roll_link:
+        fd_right_roll_link:
           Value: true
-        fd_left_virtual_clutch_link:
+        fd_right_virtual_clutch_link:
           Value: true
-        fd_left_x_link:
+        fd_right_x_link:
           Value: true
-        fd_left_y_link:
+        fd_right_y_link:
           Value: true
-        fd_left_yaw_link:
+        fd_right_yaw_link:
           Value: true
-        fd_left_z_link:
+        fd_right_z_link:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -79,22 +78,22 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        fd_left_base:
-          fd_left_x_link:
-            fd_left_y_link:
-              fd_left_z_link:
-                fd_left_roll_link:
-                  fd_left_pitch_link:
-                    fd_left_yaw_link:
-                      fd_left_ee:
-                        fd_left_virtual_clutch_link:
+        fd_right_base:
+          fd_right_x_link:
+            fd_right_y_link:
+              fd_right_z_link:
+                fd_right_roll_link:
+                  fd_right_pitch_link:
+                    fd_right_yaw_link:
+                      fd_right_ee:
+                        fd_right_virtual_clutch_link:
                           {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: fd_left_base
+    Fixed Frame: fd_right_base
     Frame Rate: 30
   Name: root
   Tools:
@@ -137,7 +136,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 6.4305901527404785
+      Distance: 10
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -152,10 +151,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7503980398178101
+      Pitch: 0.785398006439209
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.7703980207443237
+      Yaw: 0.785398006439209
     Saved: ~
 Window Geometry:
   Displays:
