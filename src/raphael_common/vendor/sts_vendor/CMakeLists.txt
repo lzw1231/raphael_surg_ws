@@ -2,13 +2,11 @@ cmake_minimum_required(VERSION 3.28)
 project(sts_vendor)
 
 # 启用 compile_commands.json 导出，以支持 IDE 代码索引
-set(CMAKE_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS} CACHE INTERNAL "")
+set(_dummy ${CMAKE_EXPORT_COMPILE_COMMANDS})
 
 # 设定 C++ 标准（若未指定则默认为 C++17）
-if (NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif ()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 依赖 ROS2 ament 构建系统
 find_package(ament_cmake REQUIRED)
