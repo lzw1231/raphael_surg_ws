@@ -46,8 +46,8 @@ namespace fd_left_hardware{
         std::vector<double> hw_states_inertia_; // upper-triangular matrix
         std::vector<double> hw_button_state_;
 
-        int interface_ID_ = -1;
-        int32_t interface_SN_ = -1;
+        char interface_ID_ = -1;
+        int interface_SN_ = -1;
         bool emulate_button_ = false;
         std::string inertia_interface_name_;
         double effector_mass_ = -1.0;

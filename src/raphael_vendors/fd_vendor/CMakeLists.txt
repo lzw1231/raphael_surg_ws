@@ -34,7 +34,7 @@ add_library(${PROJECT_NAME} INTERFACE)
 # 配置头文件包含目录（区分构建期与安装期路径）
 target_include_directories(${PROJECT_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # 构建期：指向源码 include 目录
-        $<INSTALL_INTERFACE:.>                                  # 安装期：指向安装根目录
+        $<INSTALL_INTERFACE:include>                            # 安装期：指向安装后的 include 目录
 )
 
 # 配置链接依赖（指向安装后的库文件路径）
@@ -50,7 +50,7 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 # ==========================================
 # 安装头文件至安装根目录
 install(
-        DIRECTORY include/
+        DIRECTORY include
         DESTINATION .
 )
 

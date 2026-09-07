@@ -106,8 +106,8 @@ namespace fd_left_hardware{
         // 读取硬件ros2_control配置参数
         auto it_interface_serial_number = info_.hardware_parameters.find("interface_serial_number");
         if (it_interface_serial_number != info_.hardware_parameters.end()) {
-            interface_SN_ = stoll(it_interface_serial_number->second);
-            RCLCPP_INFO(LOGGER, "使用设备 serial_number: %ld", interface_SN_);
+            interface_SN_ = stoi(it_interface_serial_number->second);
+            RCLCPP_INFO(LOGGER, "使用设备 serial_number: %d", interface_SN_);
         } else {
             interface_SN_ = -1;
         }
@@ -302,54 +302,56 @@ namespace fd_left_hardware{
 
 
     hardware_interface::return_type FDLeftHardwareInterface::write(const rclcpp::Time& time, const rclcpp::Duration& period) {
-        // 屏蔽未使用参数编译警告
         (void)time;
         (void)period;
 
-        // 检测力控指令是否存在 NaN 非法值
-        bool has_nan_cmd = false;
-        for (const auto& cmd : hw_commands_effort_) {
-            if (cmd != cmd) {
-                has_nan_cmd = true;
-                break;
+        // 指令非法值标记，检测力指令是否存在NaN无效数据
+        bool isNan = false;
+
+        // 遍历所有力控指令，检测NaN异常（浮点数NaN不等于自身）
+        for (auto& command : hw_commands_effort_) {
+            if (command != command) {
+                isNan = true;
             }
         }
 
-        // 指令合法：下发对应维度力/力矩/夹持力
-        if (!has_nan_cmd) {
-            // 7DoF设备（含腕部+夹持器）：输出三轴力 + 三轴力矩 + 夹持力
+        // 无NaN异常时，正常执硬件力指令输出
+        if (!isNan) {
+            // 设备带夹持器且硬件自由度大于6：输出完整6维力力矩+夹持器力
             if (dhdHasGripper(interface_ID_) && hw_states_effort_.size() > 6) {
                 dhdSetForceAndTorqueAndGripperForce(
                     hw_commands_effort_[0], hw_commands_effort_[1], hw_commands_effort_[2],
                     hw_commands_effort_[3], hw_commands_effort_[4], hw_commands_effort_[5],
                     hw_commands_effort_[6], interface_ID_);
             }
-            // 4DoF设备（平移+夹持器，无腕部姿态）：仅输出平移力 + 夹持力，力矩置零
+            // 设备带腕部、硬件自由度为4：仅输出平动力+夹持力，屏蔽旋转力矩
             else if (dhdHasWrist(interface_ID_) && hw_states_effort_.size() == 4) {
                 dhdSetForceAndTorqueAndGripperForce(
                     hw_commands_effort_[0], hw_commands_effort_[1], hw_commands_effort_[2],
                     0.0, 0.0, 0.0, hw_commands_effort_[3], interface_ID_);
             }
-            // 6DoF设备（完整腕部，无独立夹持关节）：输出三轴力+三轴力矩，夹持力置零
+            // 设备带腕部、无夹持离合关节：输出完整6维力力矩，屏蔽夹持器力
             else if (dhdHasWrist(interface_ID_) && hw_states_effort_.size() > 3) {
+                // 无夹持离合关节，禁用夹持力反馈，仅开启6DOF力力矩反馈
                 dhdSetForceAndTorqueAndGripperForce(
                     hw_commands_effort_[0], hw_commands_effort_[1], hw_commands_effort_[2],
                     hw_commands_effort_[3], hw_commands_effort_[4], hw_commands_effort_[5],
-                    0.0, interface_ID_);
+                    0, interface_ID_);
             }
-            // 3DoF纯平移设备：仅输出平移力，力矩、夹持力全部置零
+            // 基础平移构型设备：仅输出三维平动力，屏蔽所有力矩与夹持力
             else {
+                // 仅平移维度作动，关闭旋转与夹持力反馈
                 dhdSetForceAndTorqueAndGripperForce(
                     hw_commands_effort_[0], hw_commands_effort_[1], hw_commands_effort_[2],
-                    0.0, 0.0, 0.0, 0.0, interface_ID_);
+                    0, 0, 0, 0, interface_ID_);
             }
         }
-        // 指令含非法 NaN：安全置零所有力输出，保护设备
+        // 检测到NaN非法指令，执行硬件安全保护，清零所有力反馈输出
         else {
-            dhdSetForceAndTorqueAndGripperForce(
-                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, interface_ID_);
+            dhdSetForceAndTorqueAndGripperForce(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, interface_ID_);
         }
 
+        // 硬件写入执行完成，返回正常状态
         return hardware_interface::return_type::OK;
     }
 
@@ -368,8 +370,7 @@ namespace fd_left_hardware{
         if (interface_SN_ >= 0) {
             // 通过序列号打开指定设备
             RCLCPP_INFO(LOGGER, "正在通过序列号 %d 连接力反馈设备，请稍候...", interface_SN_);
-            uint16_t serialNumber = static_cast<uint16_t>(interface_SN_);
-            interface_ID_ = dhdOpenSerial(serialNumber);
+            interface_ID_ = static_cast<char>(dhdOpenSerial(interface_SN_));
             dhd_open_success = (interface_ID_ >= 0);
         }
 
@@ -479,11 +480,6 @@ namespace fd_left_hardware{
         }
     }
 
-    /**
- * @brief 断开力反馈设备通信，执行安全停机流程：停止力矩输出、进入制动模式、关闭设备句柄
- * @return true 设备停机断开成功；false 关闭设备句柄失败
- * @note 本函数会阻塞等待设备停机完成；调用前无需再次置零力矩，dhdStop内部会处理力输出关闭
- */
     bool FDLeftHardwareInterface::disconnectFromDevice() {
         // 执行设备安全停机：关闭力反馈输出，设备进入制动模式
         int hasStopped = -1;
