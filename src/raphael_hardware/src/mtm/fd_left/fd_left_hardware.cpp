@@ -1,4 +1,4 @@
-#include "raphael_hardware/MTM/fd_left/fd_left_hardware.hpp"
+#include "raphael_hardware/mtm/fd_left/fd_left_hardware.hpp"
 #include "raphael_hardware/common/math_utils.hpp"
 #include <fd_vendor/dhd.hpp>
 #include <fd_vendor/drd.hpp>

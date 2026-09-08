@@ -131,11 +131,11 @@
       "-fPIC",
       "-c",
       "-o",
-      "CMakeFiles/raphael_hardware.dir/src/MTM/fd_left/fd_left_hardware.cpp.o",
-      "/home/lzw/Projects/raphael_surg_ws/src/raphael_hardware/src/MTM/fd_left/fd_left_hardware.cpp"
+      "CMakeFiles/raphael_hardware.dir/src/mtm/fd_left/fd_left_hardware.cpp.o",
+      "/home/lzw/Projects/raphael_surg_ws/src/raphael_hardware/src/mtm/fd_left/fd_left_hardware.cpp"
     ],
     "directory": "/home/lzw/Projects/raphael_surg_ws/build/raphael_hardware",
-    "file": "/home/lzw/Projects/raphael_surg_ws/src/raphael_hardware/src/MTM/fd_left/fd_left_hardware.cpp",
-    "output": "/home/lzw/Projects/raphael_surg_ws/build/raphael_hardware/CMakeFiles/raphael_hardware.dir/src/MTM/fd_left/fd_left_hardware.cpp.o"
+    "file": "/home/lzw/Projects/raphael_surg_ws/src/raphael_hardware/src/mtm/fd_left/fd_left_hardware.cpp",
+    "output": "/home/lzw/Projects/raphael_surg_ws/build/raphael_hardware/CMakeFiles/raphael_hardware.dir/src/mtm/fd_left/fd_left_hardware.cpp.o"
   }
 ]
