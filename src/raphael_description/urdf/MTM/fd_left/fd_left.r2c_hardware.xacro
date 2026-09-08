@@ -9,7 +9,7 @@
                     <plugin>fake_components/GenericSystem</plugin>
                 </xacro:if>
                 <xacro:unless value="${use_fake_hardware}">
-                    <plugin>fd_hardware/FDEffortHardwareInterface</plugin>
+                    <plugin>fd_left_hardware/FDLeftHardwareInterface</plugin>
                     <param name="interface_id">${interface_id}</param>
                     <param name="interface_serial_number">${interface_sn}</param>
                     <param name="emulate_button">${emulate_button}</param>

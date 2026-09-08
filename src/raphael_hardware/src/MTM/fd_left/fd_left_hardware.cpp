@@ -1,34 +1,9 @@
 #include "raphael_hardware/MTM/fd_left/fd_left_hardware.hpp"
+#include "raphael_hardware/common/math_utils.hpp"
 #include <fd_vendor/dhd.hpp>
 #include <fd_vendor/drd.hpp>
 
 namespace fd_left_hardware{
-    /**
-     * @brief 将对称矩阵的三角索引映射为一维数组索引
-     * @param idx_row 行索引
-     * @param idx_col 列索引
-     * @param dim 矩阵维度 (默认6)
-     * @return 一维数组中的线性索引
-     * @note 仅处理上三角部分 (i <= j)，存储顺序为: (0,0),(0,1)...(0,n-1), (1,1)...
-     */
-    unsigned int flattened_index_from_triangular_index(unsigned int idx_row, unsigned int idx_col, unsigned int dim = 6) {
-        unsigned int i = idx_row;
-        unsigned int j = idx_col;
-        // 确保 i <= j，强制映射到上三角区域
-        if (idx_col < idx_row) {
-            i = idx_col;
-            j = idx_row;
-        }
-        // 计算上三角矩阵在一维数组中的偏移量
-        return i * (2 * dim - i - 1) / 2 + j;
-    }
-
-    /// @brief 重置向量大小并填充初始值
-    static void resize_and_fill(std::vector<double>& vec, size_t new_size, double init_val) {
-        vec.resize(new_size, init_val);
-        std::fill(vec.begin(), vec.end(), init_val);
-    }
-
     rclcpp::Logger LOGGER = rclcpp::get_logger("FDLeftHardwareInterface");
 
     FDLeftHardwareInterface::~FDLeftHardwareInterface() {
@@ -181,15 +156,15 @@ namespace fd_left_hardware{
         }
 
         // ========== 1. 初始化状态/命令缓冲区 ==========
-        resize_and_fill(hw_states_position_, info_.joints.size(), BUF_INIT_NAN);
-        resize_and_fill(hw_states_velocity_, info_.joints.size(), BUF_INIT_NAN);
-        resize_and_fill(hw_states_effort_, info_.joints.size(), BUF_INIT_NAN);
-        resize_and_fill(hw_commands_effort_, info_.joints.size(), BUF_INIT_NAN);
-        resize_and_fill(hw_states_inertia_, INERTIA_MATRIX_FLATTEN_SIZE, BUF_INIT_NAN);
-        resize_and_fill(hw_button_state_, info_.gpios.size(), BUF_INIT_NAN);
+        hw_math::resize_and_fill(hw_states_position_, info_.joints.size(), BUF_INIT_NAN);
+        hw_math::resize_and_fill(hw_states_velocity_, info_.joints.size(), BUF_INIT_NAN);
+        hw_math::resize_and_fill(hw_states_effort_, info_.joints.size(), BUF_INIT_NAN);
+        hw_math::resize_and_fill(hw_commands_effort_, info_.joints.size(), BUF_INIT_NAN);
+        hw_math::resize_and_fill(hw_states_inertia_, INERTIA_MATRIX_FLATTEN_SIZE, BUF_INIT_NAN);
+        hw_math::resize_and_fill(hw_button_state_, info_.gpios.size(), BUF_INIT_NAN);
 
         // ========== 2. 特殊设备逻辑处理 ==========
-        // 若启用按键模拟且关节数符合特定配置，初始化最后一个关节命令为0
+        // 若启用按键模拟且关节数符合特定配置，初始化最后一个关节（即夹爪）命令为0.0
         if (emulate_button_ && (info_.joints.size() == 4 || info_.joints.size() > 6)) {
             hw_commands_effort_[info_.joints.size() - 1U] = 0.0;
         }
@@ -201,40 +176,60 @@ namespace fd_left_hardware{
         std::vector<hardware_interface::StateInterface::ConstSharedPtr> state_interfaces;
         state_if_storage_.clear();
 
-        // 导出 Joint Position / Velocity / Effort
-        for (uint i = 0; i < info_.joints.size(); i++) {
+        // 1. 预分配内存，避免 push_back 触发多次重分配
+        // 计算总量: 关节数*3 (位置/速度/力矩) + GPIO数 + 惯性矩阵上三角元素(6x6=21)
+        const size_t inertia_elements = 21;
+        size_t total_size = info_.joints.size() * 3 + info_.gpios.size() + inertia_elements;
+        state_interfaces.reserve(total_size);
+        state_if_storage_.reserve(total_size);
+
+        // 2. 导出关节状态接口 (位置、速度、力矩)
+        for (size_t i = 0; i < info_.joints.size(); i++) {
+            const auto& joint_name = info_.joints[i].name;
+
+            // 位置
             auto if_pos = std::make_shared<hardware_interface::StateInterface>(
-                info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_states_position_[i]);
+                joint_name, hardware_interface::HW_IF_POSITION, &hw_states_position_[i]);
             state_if_storage_.push_back(if_pos);
             state_interfaces.push_back(std::const_pointer_cast<const hardware_interface::StateInterface>(if_pos));
 
+            // 速度
             auto if_vel = std::make_shared<hardware_interface::StateInterface>(
-                info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocity_[i]);
+                joint_name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocity_[i]);
             state_if_storage_.push_back(if_vel);
             state_interfaces.push_back(std::const_pointer_cast<const hardware_interface::StateInterface>(if_vel));
 
+            // 力矩
             auto if_eff = std::make_shared<hardware_interface::StateInterface>(
-                info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &hw_states_effort_[i]);
+                joint_name, hardware_interface::HW_IF_EFFORT, &hw_states_effort_[i]);
             state_if_storage_.push_back(if_eff);
             state_interfaces.push_back(std::const_pointer_cast<const hardware_interface::StateInterface>(if_eff));
         }
 
-        // 导出 GPIO Button State
-        for (uint i = 0; i < info_.gpios.size(); i++) {
+        // 3. 导出 GPIO 按钮状态
+        for (size_t i = 0; i < info_.gpios.size(); i++) {
+            const auto& gpio_name = info_.gpios[i].name;
             auto if_btn = std::make_shared<hardware_interface::StateInterface>(
-                info_.gpios[i].name, hardware_interface::HW_IF_POSITION, &hw_button_state_[i]);
+                gpio_name, hardware_interface::HW_IF_POSITION, &hw_button_state_[i]);
             state_if_storage_.push_back(if_btn);
             state_interfaces.push_back(std::const_pointer_cast<const hardware_interface::StateInterface>(if_btn));
         }
 
-        // 导出惯性矩阵上三角元素 (6x6)
+        // 4. 导出惯性矩阵状态 (6x6 上三角矩阵扁平化存储)
         for (uint row = 0; row < 6; row++) {
             for (uint col = row; col < 6; col++) {
-                size_t idx = flattened_index_from_triangular_index(row, col);
+                size_t idx = hw_math::flattened_index_from_triangular_index(row, col);
+
+                // 构建可读性更强的接口名称，例如: "fd_inertia_0_0"
+                std::string interface_name = inertia_interface_name_ + "_" +
+                    std::to_string(row) + "_" +
+                    std::to_string(col);
+
                 auto if_inert = std::make_shared<hardware_interface::StateInterface>(
-                    inertia_interface_name_,
-                    std::to_string(row) + std::to_string(col),
+                    inertia_interface_name_, // 组件名称
+                    interface_name, // 接口唯一标识
                     &hw_states_inertia_[idx]);
+
                 state_if_storage_.push_back(if_inert);
                 state_interfaces.push_back(std::const_pointer_cast<const hardware_interface::StateInterface>(if_inert));
             }
@@ -242,6 +237,7 @@ namespace fd_left_hardware{
 
         return state_interfaces;
     }
+
 
     std::vector<hardware_interface::CommandInterface::SharedPtr> FDLeftHardwareInterface::on_export_command_interfaces() {
         std::vector<hardware_interface::CommandInterface::SharedPtr> command_interfaces;
@@ -385,7 +381,7 @@ namespace fd_left_hardware{
         // 将对称矩阵的上三角部分展平存入状态向量
         for (uint row = 0; row < 6; row++) {
             for (uint col = row; col < 6; col++) {
-                hw_states_inertia_[flattened_index_from_triangular_index(row, col)] = inertia_array[row][col];
+                hw_states_inertia_[hw_math::flattened_index_from_triangular_index(row, col)] = inertia_array[row][col];
             }
         }
 
