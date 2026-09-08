@@ -1,5 +1,6 @@
 // Copyright 2026
-// Licensed under Apache‑2.0
+// Licensed under Apache 2.0
+
 #ifndef RAPHAEL_HARDWARE__VISIBILITY_CONTROL_H_
 #define RAPHAEL_HARDWARE__VISIBILITY_CONTROL_H_
 
@@ -29,7 +30,7 @@ extern "C"{
 // ==========================================
 // Linux / macOS (GCC / Clang) 处理
 // ==========================================
-// 优先 __has_attribute，兼容Clang；再回退GCC版本判断
+// 检查 __has_attribute 支持 (Clang 和部分 GCC 版本)
 #if defined(__has_attribute) && __has_attribute(visibility)
 #define RAPHAEL_HARDWARE_PUBLIC __attribute__((visibility("default")))
 #define RAPHAEL_HARDWARE_LOCAL  __attribute__((visibility("hidden")))
@@ -37,7 +38,7 @@ extern "C"{
 #define RAPHAEL_HARDWARE_PUBLIC __attribute__((visibility("default")))
 #define RAPHAEL_HARDWARE_LOCAL  __attribute__((visibility("hidden")))
 #else
-// 降级处理：不支持 visibility 的编译器
+// 不支持 visibility 属性的编译器回退
 #define RAPHAEL_HARDWARE_PUBLIC
 #define RAPHAEL_HARDWARE_LOCAL
 #endif
