@@ -11,7 +11,7 @@
                 <xacro:unless value="${use_fake_hardware}">
                     <plugin>fd_left_hardware/FDLeftHardwareInterface</plugin>
                     <param name="interface_id">${interface_id}</param>
-                    <param name="interface_serial_number">${interface_sn}</param>
+                    <param name="interface_sn">${interface_sn}</param>
                     <param name="emulate_button">${emulate_button}</param>
                     <param name="inertia_interface_name">${robot_id}_inertia</param>
                     <param name="effector_mass">${effector_mass}</param>

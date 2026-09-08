@@ -105,10 +105,10 @@ namespace fd_left_hardware{
         }
 
         // 解析 ros2_control 参数
-        auto it_interface_serial_number = info_.hardware_parameters.find("interface_serial_number");
-        if (it_interface_serial_number != info_.hardware_parameters.end()) {
-            interface_SN_ = stoi(it_interface_serial_number->second);
-            RCLCPP_INFO(LOGGER, "配置序列号 serial_number: %d", interface_SN_);
+        auto it_interface_sn = info_.hardware_parameters.find("interface_sn");
+        if (it_interface_sn != info_.hardware_parameters.end()) {
+            interface_SN_ = stoi(it_interface_sn->second);
+            RCLCPP_INFO(LOGGER, "配置序列号 sn: %d", interface_SN_);
         } else {
             interface_SN_ = -1;
         }

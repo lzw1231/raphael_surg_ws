@@ -83,7 +83,7 @@ namespace fd_left_hardware{
         hardware_interface::return_type write(const rclcpp::Time&, const rclcpp::Duration&) override;
 
     private:
-        std::vector<double> hw_commands_effort_; ///< [Cmd] 力矩/力命令缓冲区
+        std::vector<double> hw_commands_effort_; ///< [Command] 力矩/力命令缓冲区
         std::vector<double> hw_states_position_; ///< [State] 关节位置状态
         std::vector<double> hw_states_velocity_; ///< [State] 关节速度状态
         std::vector<double> hw_states_effort_; ///< [State] 关节力矩/力状态
