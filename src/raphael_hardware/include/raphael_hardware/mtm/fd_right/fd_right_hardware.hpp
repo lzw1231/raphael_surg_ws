@@ -11,12 +11,12 @@
 namespace fd_right_hardware{
     class FDRightHardwareInterface : public hardware_interface::SystemInterface {
     public:
-        RCLCPP_SHARED_PTR_DEFINITIONS (FDLeftHardwareInterface);
+        RCLCPP_SHARED_PTR_DEFINITIONS(FDRightHardwareInterface);
 
         /**
          * @brief 析构函数
          */
-        ~FDLeftHardwareInterface() override;
+        ~FDRightHardwareInterface() override;
 
         /**
          * @brief 初始化硬件接口参数

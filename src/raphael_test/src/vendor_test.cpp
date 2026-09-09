@@ -1,5 +1,4 @@
-#include <fd_vendor/dhd.hpp>
-#include <fd_vendor/drd.hpp>
+#include <fd_vendor/fd_sdk.hpp>
 #include <sts_vendor/SCServo.hpp>
 #include <iostream>
 #include <thread>

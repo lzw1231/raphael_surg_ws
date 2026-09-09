@@ -1,4 +1,5 @@
 #include "raphael_hardware/common/fd_utils.hpp"
+#include <fd_vendor/fd_sdk.hpp>
 
 
 namespace fd_utils{
@@ -136,5 +137,144 @@ namespace fd_utils{
         RCLCPP_INFO(logger, "忽略姿态读取: %s", params.ignore_orientation ? "true" : "false");
 
         return params;
+    }
+
+    FDConnectResult connect_to_device(rclcpp::Logger logger, const FDConnectParams& params) {
+        FDConnectResult res{};
+        int major, minor, release, revision;
+        dhdGetSDKVersion(&major, &minor, &release, &revision);
+        RCLCPP_INFO(logger,
+                    "DHD SDK 版本: %d.%d (release %d / revision %d)", major, minor, release, revision);
+
+        bool dhd_open_success = false;
+        int interface_id = -1;
+        if (params.interface_sn >= 0) {
+            RCLCPP_INFO(logger, "尝试通过序列号 %d 打开设备...", params.interface_sn);
+            interface_id = static_cast<int>(dhdOpenSerial(params.interface_sn));
+            dhd_open_success = (interface_id >= 0);
+        }
+
+        if (!dhd_open_success) {
+            RCLCPP_ERROR(logger, "打开设备失败");
+            res.success = false;
+            return res;
+        }
+
+        RCLCPP_INFO(logger, "设备名称: %s", dhdGetSystemName(interface_id));
+        uint16_t serialNumber = 0;
+        if (dhdGetSerialNumber(&serialNumber, interface_id) < 0) {
+            RCLCPP_WARN(logger, "无法获取序列号: %s", dhdErrorGetLastStr());
+        } else {
+            RCLCPP_INFO(logger, "设备序列号: %d", serialNumber);
+        }
+        RCLCPP_INFO(logger, "内部接口 ID: %d", interface_id);
+
+        bool has_wrist = (dhdHasWrist(interface_id) != 0);
+        if (has_wrist) {
+            RCLCPP_INFO(logger, "检测到腕部自由度");
+        } else {
+            RCLCPP_INFO(logger, "未检测到腕部自由度");
+        }
+
+        double current_effector_mass = 0.0;
+        if (dhdGetEffectorMass(&current_effector_mass, interface_id) == DHD_NO_ERROR) {
+            RCLCPP_INFO(logger, "当前末端质量: %.2f g", current_effector_mass * 1000.0);
+        } else {
+            RCLCPP_WARN(logger, "无法获取末端质量");
+        }
+
+        if (dhdSetMaxForce(params.max_force, interface_id) < DHD_NO_ERROR) {
+            RCLCPP_ERROR(logger, "设置最大力失败");
+            (void)disconnect_from_device(logger, interface_id);
+            res.success = false;
+            return res;
+        }
+
+        dhdSetBrakes(DHD_OFF, interface_id);
+
+        if (dhdEnableForce(DHD_ON, interface_id) < DHD_NO_ERROR) {
+            RCLCPP_ERROR(logger, "启用力反馈失败");
+            (void)disconnect_from_device(logger, interface_id);
+            res.success = false;
+            return res;
+        }
+
+        if (params.effector_mass > 0.0) {
+            RCLCPP_INFO(logger,
+                        "更新末端质量: %.2f g -> %.2f g",
+                        current_effector_mass * 1000.0,
+                        params.effector_mass * 1000.0);
+            if (dhdSetEffectorMass(params.effector_mass, interface_id) < DHD_NO_ERROR) {
+                RCLCPP_ERROR(logger, "设置末端质量失败");
+                (void)disconnect_from_device(logger, interface_id);
+                res.success = false;
+                return res;
+            }
+        }
+
+        if (dhdSetGravityCompensation(DHD_ON, interface_id) < DHD_NO_ERROR) {
+            RCLCPP_ERROR(logger, "开启重力补偿失败");
+            (void)disconnect_from_device(logger, interface_id);
+            res.success = false;
+            return res;
+        }
+        RCLCPP_INFO(logger, "重力补偿已开启");
+        RCLCPP_INFO(logger, "设备基本配置完成");
+
+        bool has_gripper = (dhdHasGripper(interface_id) != 0);
+        if (params.emulate_button && !has_gripper) {
+            RCLCPP_ERROR(logger, "启用按键模拟但设备无夹爪");
+        } else if (params.emulate_button && has_gripper) {
+            RCLCPP_INFO(logger, "设备带有夹爪，启用按键模拟");
+            if (dhdEmulateButton(DHD_ON, interface_id) < DHD_NO_ERROR) {
+                RCLCPP_ERROR(logger, "启用按键模拟失败");
+                (void)disconnect_from_device(logger, interface_id);
+                res.success = false;
+                return res;
+            }
+            RCLCPP_INFO(logger, "按键模拟功能已激活");
+        }
+
+        if (dhdSetForceAndTorqueAndGripperForce(
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            interface_id) < DHD_NO_ERROR) {
+            RCLCPP_ERROR(logger, "初始化力输出失败");
+            (void)disconnect_from_device(logger, interface_id);
+            res.success = false;
+            return res;
+        }
+
+        // 根据硬件能力自动设置忽略姿态
+        bool ignore_orient = !has_wrist;
+        dhdSleep(0.1);
+
+        res.interface_id = interface_id;
+        res.ignore_orientation = ignore_orient;
+        res.success = true;
+        return res;
+    }
+
+    bool disconnect_from_device(rclcpp::Logger logger, int& interface_id) {
+        if (interface_id < 0) {
+            RCLCPP_WARN(logger, "设备ID已经无效，无需断开");
+            return true;
+        }
+
+        int hasStopped = -1;
+        while (hasStopped < 0) {
+            RCLCPP_INFO(logger, "正在停止 DHD 设备...");
+            hasStopped = dhdStop(interface_id);
+            dhdSleep(0.1);
+        }
+
+        int connectionIsClosed = dhdClose(interface_id);
+        if (connectionIsClosed >= 0) {
+            RCLCPP_INFO(logger, "DHD 设备已关闭");
+            interface_id = -1;
+            return true;
+        } else {
+            RCLCPP_ERROR(logger, "DHD 设备关闭失败");
+            return false;
+        }
     }
 } // namespace fd_utils

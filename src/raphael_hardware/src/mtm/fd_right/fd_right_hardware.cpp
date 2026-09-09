@@ -1,8 +1,8 @@
 #include "raphael_hardware/mtm/fd_right/fd_right_hardware.hpp"
 #include "raphael_hardware/common/math_utils.hpp"
 #include "raphael_hardware/common/fd_utils.hpp"
-#include <fd_vendor/dhd.hpp>
-#include <fd_vendor/drd.hpp>
+#include <fd_vendor/fd_sdk.hpp>
+
 
 namespace fd_right_hardware{
     rclcpp::Logger LOGGER = rclcpp::get_logger("FDRightHardwareInterface");
@@ -24,7 +24,7 @@ namespace fd_right_hardware{
             return CallbackReturn::ERROR;
         }
 
-        // 读取参数到结构体，再赋值给类成员
+        // 加载参数并赋值给类成员
         auto fd_params = fd_utils::load_hardware_parameters(info_, LOGGER);
         interface_SN_ = fd_params.interface_sn;
         emulate_button_ = fd_params.emulate_button;
@@ -179,14 +179,12 @@ namespace fd_right_hardware{
         if (!ignore_orientation_ && hw_states_position_.size() > 3) {
             // 读取姿态角 (rad)
             flag += dhdGetOrientationRad(&hw_states_position_[3], &hw_states_position_[4], &hw_states_position_[5], interface_ID_);
-        } else if (ignore_orientation_&& hw_states_position_
+        } else if (ignore_orientation_ && hw_states_position_
 
 
-
-        .
-        size() > 3
-        )
-        {
+            .
+            size() > 3
+        ) {
             // 若忽略姿态，置零
             hw_states_position_[3] = 0.0;
             hw_states_position_[4] = 0.0;
@@ -208,14 +206,12 @@ namespace fd_right_hardware{
         if (!ignore_orientation_ && hw_states_velocity_.size() > 3) {
             // 读取角速度
             flag += dhdGetAngularVelocityRad(&hw_states_velocity_[3], &hw_states_velocity_[4], &hw_states_velocity_[5], interface_ID_);
-        } else if (ignore_orientation_&& hw_states_velocity_
+        } else if (ignore_orientation_ && hw_states_velocity_
 
 
-
-        .
-        size() > 3
-        )
-        {
+            .
+            size() > 3
+        ) {
             // 若忽略姿态，置零
             hw_states_velocity_[3] = 0.0;
             hw_states_velocity_[4] = 0.0;
@@ -246,14 +242,12 @@ namespace fd_right_hardware{
             hw_states_effort_[3] = torque[0];
             hw_states_effort_[4] = torque[1];
             hw_states_effort_[5] = torque[2];
-        } else if (ignore_orientation_&& hw_states_effort_
+        } else if (ignore_orientation_ && hw_states_effort_
 
 
-
-        .
-        size() > 3
-        )
-        {
+            .
+            size() > 3
+        ) {
             // 若忽略姿态，置零
             hw_states_effort_[3] = 0.0;
             hw_states_effort_[4] = 0.0;
@@ -447,7 +441,7 @@ namespace fd_right_hardware{
             // 处理按键模拟逻辑
             if (emulate_button_ && !dhdHasGripper(interface_ID_)) {
                 RCLCPP_ERROR(LOGGER, "启用按键模拟但设备无夹爪");
-            } else if (emulate_button_&& dhdHasGripper(interface_ID_)) {
+            } else if (emulate_button_ && dhdHasGripper(interface_ID_)) {
                 RCLCPP_INFO(LOGGER, "设备带有夹爪，启用按键模拟");
                 if (dhdEmulateButton(DHD_ON, interface_ID_) < DHD_NO_ERROR) {
                     RCLCPP_ERROR(LOGGER, "启用按键模拟失败");

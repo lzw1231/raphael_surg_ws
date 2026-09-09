@@ -1,14 +1,17 @@
 #include "raphael_hardware/mtm/fd_left/fd_left_hardware.hpp"
 #include "raphael_hardware/common/math_utils.hpp"
 #include "raphael_hardware/common/fd_utils.hpp"
-#include <fd_vendor/dhd.hpp>
-#include <fd_vendor/drd.hpp>
+#include <fd_vendor/fd_sdk.hpp>
+
 
 namespace fd_left_hardware{
     rclcpp::Logger LOGGER = rclcpp::get_logger("FDLeftHardwareInterface");
 
     FDLeftHardwareInterface::~FDLeftHardwareInterface() {
-        (void)disconnectFromDevice();
+        int id = static_cast<int>(interface_ID_);
+        fd_utils::disconnect_from_device(LOGGER, id);
+        interface_ID_ = static_cast<char>(id);
+        isConnected_ = false;
     }
 
     hardware_interface::CallbackReturn FDLeftHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams& params) {
