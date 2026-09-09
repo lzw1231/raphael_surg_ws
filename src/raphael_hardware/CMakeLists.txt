@@ -30,6 +30,7 @@ find_package(fd_vendor REQUIRED)
 # 创建共享库
 # 注意：如果后续添加了 PSM 或 Right MTM 的代码，请在此处追加源文件路径
 add_library(${PROJECT_NAME} SHARED
+        src/mtm/fd_base/fd_hardware_base.cpp
         src/mtm/fd_left/fd_left_hardware.cpp
         # src/MTM/fd_right/fd_right_hardware.cpp  <-- 未来添加
         # src/PSM/psm_hardware.cpp               <-- 未来添加
