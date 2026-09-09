@@ -4,14 +4,14 @@
 #include "raphael_hardware/common/visibility_control.hpp"
 
 /**
- * @brief Force Dimension 左侧设备硬件接口
+ * @brief Force Dimension 右侧设备硬件接口
  * @details 实现 ROS2 HardwareInterface 用于控制力反馈设备/读取状态
  *          支持位置/速度/力矩反馈以及GPIO按钮状态读取
  */
-namespace fd_left_hardware{
-    class FDLeftHardwareInterface : public hardware_interface::SystemInterface {
+namespace fd_right_hardware{
+    class FDRightHardwareInterface : public hardware_interface::SystemInterface {
     public:
-        RCLCPP_SHARED_PTR_DEFINITIONS(FDLeftHardwareInterface);
+        RCLCPP_SHARED_PTR_DEFINITIONS (FDLeftHardwareInterface);
 
         /**
          * @brief 析构函数
@@ -118,5 +118,5 @@ namespace fd_left_hardware{
          * @return 成功返回true，失败返回false
          */
         bool disconnectFromDevice();
-    }; // class FDLeftHardwareInterface
-} // namespace fd_left_hardware
+    }; // class FDRightHardwareInterface
+} // namespace fd_right_hardware

@@ -1,153 +1,41 @@
-#include "raphael_hardware/mtm/fd_left/fd_left_hardware.hpp"
+#include "raphael_hardware/mtm/fd_right/fd_right_hardware.hpp"
 #include "raphael_hardware/common/math_utils.hpp"
+#include "raphael_hardware/common/fd_utils.hpp"
 #include <fd_vendor/dhd.hpp>
 #include <fd_vendor/drd.hpp>
 
-namespace fd_left_hardware{
-    rclcpp::Logger LOGGER = rclcpp::get_logger("FDLeftHardwareInterface");
+namespace fd_right_hardware{
+    rclcpp::Logger LOGGER = rclcpp::get_logger("FDRightHardwareInterface");
 
-    FDLeftHardwareInterface::~FDLeftHardwareInterface() {
+    FDRightHardwareInterface::~FDRightHardwareInterface() {
         (void)disconnectFromDevice();
     }
 
-    hardware_interface::CallbackReturn FDLeftHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams& params) {
+    hardware_interface::CallbackReturn FDRightHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams& params) {
         if (auto ret = hardware_interface::SystemInterface::on_init(params);
             ret != hardware_interface::CallbackReturn::SUCCESS) {
-            RCLCPP_ERROR(LOGGER, "SystemInterface 初始化失败: %d，请检查 URDF 硬件配置", static_cast<int>(ret));
+            RCLCPP_ERROR(LOGGER, "SystemInterface 初始化失败: %d 检查 URDF 配置", static_cast<int>(ret));
             return ret;
         }
-
         info_ = get_hardware_info();
 
-        // ========== 验证 URDF Joint 接口定义 ==========
-        for (const hardware_interface::ComponentInfo& joint : info_.joints) {
-            // 1. 验证命令接口数量
-            if (joint.command_interfaces.size() != 1) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "Joint '%s' 期望 1 个命令接口，实际获取 %zu 个",
-                    joint.name.c_str(), joint.command_interfaces.size());
-                return CallbackReturn::ERROR;
-            }
-
-            // 2. 验证命令接口类型
-            if (joint.command_interfaces[0].name != hardware_interface::HW_IF_EFFORT) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "Joint '%s' 命令接口类型错误: 期望 '%s', 实际 '%s'",
-                    joint.name.c_str(),
-                    hardware_interface::HW_IF_EFFORT,
-                    joint.command_interfaces[0].name.c_str());
-                return CallbackReturn::ERROR;
-            }
-
-            // 3. 验证状态接口数量
-            if (joint.state_interfaces.size() != 3) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "Joint '%s' 期望 3 个状态接口，实际获取 %zu 个",
-                    joint.name.c_str(), joint.state_interfaces.size());
-                return CallbackReturn::ERROR;
-            }
-
-            // 4. 验证状态接口类型: Position
-            if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "Joint '%s' 状态接口[0]类型错误: 期望 '%s', 实际 '%s'",
-                    joint.name.c_str(),
-                    hardware_interface::HW_IF_POSITION,
-                    joint.state_interfaces[0].name.c_str());
-                return CallbackReturn::ERROR;
-            }
-
-            // 5. 验证状态接口类型: Velocity
-            if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "Joint '%s' 状态接口[1]类型错误: 期望 '%s', 实际 '%s'",
-                    joint.name.c_str(),
-                    hardware_interface::HW_IF_VELOCITY,
-                    joint.state_interfaces[1].name.c_str());
-                return CallbackReturn::ERROR;
-            }
-
-            // 6. 验证状态接口类型: Effort
-            if (joint.state_interfaces[2].name != hardware_interface::HW_IF_EFFORT) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "Joint '%s' 状态接口[2]类型错误: 期望 '%s', 实际 '%s'",
-                    joint.name.c_str(),
-                    hardware_interface::HW_IF_EFFORT,
-                    joint.state_interfaces[2].name.c_str());
-                return CallbackReturn::ERROR;
-            }
+        // 调用工具函数校验接口
+        if (!fd_utils::validate_hardware_interfaces(info_, LOGGER)) {
+            return CallbackReturn::ERROR;
         }
 
-        // ========== 验证 GPIO Button State 接口定义 ==========
-        for (const hardware_interface::ComponentInfo& button : info_.gpios) {
-            // State 接口数量必须为 1
-            if (button.state_interfaces.size() != 1) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "GPIO '%s' 拥有 %lu 个 state 接口，期望值为 1", button.name.c_str(),
-                    button.state_interfaces.size());
-                return CallbackReturn::ERROR;
-            }
-            // State 接口类型必须为 position (用于表示离散电平状态)
-            if (button.state_interfaces[0].name != hardware_interface::HW_IF_POSITION) {
-                RCLCPP_FATAL(
-                    LOGGER,
-                    "GPIO '%s' state 类型为 [%s]，期望值为 [%s]", button.name.c_str(),
-                    button.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-                return CallbackReturn::ERROR;
-            }
-        }
-
-        // 解析 ros2_control 参数
-        auto it_interface_sn = info_.hardware_parameters.find("interface_sn");
-        if (it_interface_sn != info_.hardware_parameters.end()) {
-            interface_SN_ = stoi(it_interface_sn->second);
-            RCLCPP_INFO(LOGGER, "配置序列号 sn: %d", interface_SN_);
-        } else {
-            interface_SN_ = -1;
-        }
-
-        auto it_emulate_button = info_.hardware_parameters.find("emulate_button");
-        if (it_emulate_button != info_.hardware_parameters.end()) {
-            emulate_button_ = hardware_interface::parse_bool(it_emulate_button->second);
-        } else {
-            emulate_button_ = false;
-        }
-        RCLCPP_INFO(LOGGER, "按键模拟开启: %s", emulate_button_ ? "true" : "false");
-
-        auto it_fd_inertia = info_.hardware_parameters.find("inertia_interface_name");
-        if (it_fd_inertia != info_.hardware_parameters.end()) {
-            inertia_interface_name_ = it_fd_inertia->second;
-        } else {
-            inertia_interface_name_ = "fd_inertia";
-        }
-
-        auto it_interface_mass = info_.hardware_parameters.find("effector_mass");
-        if (it_interface_mass != info_.hardware_parameters.end()) {
-            effector_mass_ = hardware_interface::stod(it_interface_mass->second);
-            RCLCPP_INFO(LOGGER, "末端执行器质量: %lf Kg", effector_mass_);
-        } else {
-            effector_mass_ = -1.0;
-        }
-
-        auto it_ignore_orientation = info_.hardware_parameters.find("ignore_orientation_readings");
-        if (it_ignore_orientation != info_.hardware_parameters.end()) {
-            ignore_orientation_ = hardware_interface::parse_bool(it_ignore_orientation->second);
-        } else {
-            ignore_orientation_ = false;
-        }
-        RCLCPP_INFO(LOGGER, "忽略姿态读数: %s", ignore_orientation_ ? "true" : "false");
+        // 读取参数到结构体，再赋值给类成员
+        auto fd_params = fd_utils::load_hardware_parameters(info_, LOGGER);
+        interface_SN_ = fd_params.interface_sn;
+        emulate_button_ = fd_params.emulate_button;
+        inertia_interface_name_ = fd_params.inertia_interface_name;
+        effector_mass_ = fd_params.effector_mass;
+        ignore_orientation_ = fd_params.ignore_orientation;
 
         return CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn FDLeftHardwareInterface::on_configure(const rclcpp_lifecycle::State& previous_state) {
+    hardware_interface::CallbackReturn FDRightHardwareInterface::on_configure(const rclcpp_lifecycle::State& previous_state) {
         // 调用基类 configure
         if (auto ret = hardware_interface::SystemInterface::on_configure(previous_state);
             ret != hardware_interface::CallbackReturn::SUCCESS) {
@@ -172,7 +60,7 @@ namespace fd_left_hardware{
         return CallbackReturn::SUCCESS;
     }
 
-    std::vector<hardware_interface::StateInterface::ConstSharedPtr> FDLeftHardwareInterface::on_export_state_interfaces() {
+    std::vector<hardware_interface::StateInterface::ConstSharedPtr> FDRightHardwareInterface::on_export_state_interfaces() {
         std::vector<hardware_interface::StateInterface::ConstSharedPtr> state_interfaces;
         state_if_storage_.clear();
 
@@ -239,7 +127,7 @@ namespace fd_left_hardware{
     }
 
 
-    std::vector<hardware_interface::CommandInterface::SharedPtr> FDLeftHardwareInterface::on_export_command_interfaces() {
+    std::vector<hardware_interface::CommandInterface::SharedPtr> FDRightHardwareInterface::on_export_command_interfaces() {
         std::vector<hardware_interface::CommandInterface::SharedPtr> command_interfaces;
         command_storage_.clear();
         command_interfaces.reserve(info_.joints.size());
@@ -258,8 +146,7 @@ namespace fd_left_hardware{
     }
 
 
-    hardware_interface::CallbackReturn FDLeftHardwareInterface::on_activate(const rclcpp_lifecycle::State& previous_state) {
-        (void)previous_state;
+    hardware_interface::CallbackReturn FDRightHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
         RCLCPP_INFO(LOGGER, "正在激活硬件接口...");
 
         if (connectToDevice()) {
@@ -271,8 +158,7 @@ namespace fd_left_hardware{
         }
     }
 
-    hardware_interface::CallbackReturn FDLeftHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& previous_state) {
-        (void)previous_state;
+    hardware_interface::CallbackReturn FDRightHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
         RCLCPP_INFO(LOGGER, "正在停用硬件接口...");
 
         if (disconnectFromDevice()) {
@@ -284,10 +170,7 @@ namespace fd_left_hardware{
         }
     }
 
-    hardware_interface::return_type FDLeftHardwareInterface::read(const rclcpp::Time& time, const rclcpp::Duration& period) {
-        (void)time;
-        (void)period;
-
+    hardware_interface::return_type FDRightHardwareInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
         int flag = 0; // 错误标志累加器，非0表示API调用异常
 
         // ---------- 读取位置数据 ----------
@@ -296,7 +179,14 @@ namespace fd_left_hardware{
         if (!ignore_orientation_ && hw_states_position_.size() > 3) {
             // 读取姿态角 (rad)
             flag += dhdGetOrientationRad(&hw_states_position_[3], &hw_states_position_[4], &hw_states_position_[5], interface_ID_);
-        } else if (ignore_orientation_ && hw_states_position_.size() > 3) {
+        } else if (ignore_orientation_&& hw_states_position_
+
+
+
+        .
+        size() > 3
+        )
+        {
             // 若忽略姿态，置零
             hw_states_position_[3] = 0.0;
             hw_states_position_[4] = 0.0;
@@ -318,7 +208,14 @@ namespace fd_left_hardware{
         if (!ignore_orientation_ && hw_states_velocity_.size() > 3) {
             // 读取角速度
             flag += dhdGetAngularVelocityRad(&hw_states_velocity_[3], &hw_states_velocity_[4], &hw_states_velocity_[5], interface_ID_);
-        } else if (ignore_orientation_ && hw_states_velocity_.size() > 3) {
+        } else if (ignore_orientation_&& hw_states_velocity_
+
+
+
+        .
+        size() > 3
+        )
+        {
             // 若忽略姿态，置零
             hw_states_velocity_[3] = 0.0;
             hw_states_velocity_[4] = 0.0;
@@ -349,7 +246,14 @@ namespace fd_left_hardware{
             hw_states_effort_[3] = torque[0];
             hw_states_effort_[4] = torque[1];
             hw_states_effort_[5] = torque[2];
-        } else if (ignore_orientation_ && hw_states_effort_.size() > 3) {
+        } else if (ignore_orientation_&& hw_states_effort_
+
+
+
+        .
+        size() > 3
+        )
+        {
             // 若忽略姿态，置零
             hw_states_effort_[3] = 0.0;
             hw_states_effort_[4] = 0.0;
@@ -406,13 +310,10 @@ namespace fd_left_hardware{
     }
 
 
-    hardware_interface::return_type FDLeftHardwareInterface::write(const rclcpp::Time& time, const rclcpp::Duration& period) {
-        (void)time;
-        (void)period;
-
+    hardware_interface::return_type FDRightHardwareInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
         // 检查命令中是否包含 NaN
         bool isNan = false;
-        for (auto& command : hw_commands_effort_) {
+        for (const auto& command : hw_commands_effort_) {
             if (std::isnan(command)) {
                 isNan = true;
                 break;
@@ -457,7 +358,7 @@ namespace fd_left_hardware{
     }
 
 
-    bool FDLeftHardwareInterface::connectToDevice() {
+    bool FDRightHardwareInterface::connectToDevice() {
         int major, minor, release, revision;
         // 获取 DHD SDK 版本信息
         dhdGetSDKVersion(&major, &minor, &release, &revision);
@@ -546,7 +447,7 @@ namespace fd_left_hardware{
             // 处理按键模拟逻辑
             if (emulate_button_ && !dhdHasGripper(interface_ID_)) {
                 RCLCPP_ERROR(LOGGER, "启用按键模拟但设备无夹爪");
-            } else if (emulate_button_ && dhdHasGripper(interface_ID_)) {
+            } else if (emulate_button_&& dhdHasGripper(interface_ID_)) {
                 RCLCPP_INFO(LOGGER, "设备带有夹爪，启用按键模拟");
                 if (dhdEmulateButton(DHD_ON, interface_ID_) < DHD_NO_ERROR) {
                     RCLCPP_ERROR(LOGGER, "启用按键模拟失败");
@@ -582,7 +483,7 @@ namespace fd_left_hardware{
         }
     }
 
-    bool FDLeftHardwareInterface::disconnectFromDevice() {
+    bool FDRightHardwareInterface::disconnectFromDevice() {
         // 停止设备运动
         int hasStopped = -1;
         while (hasStopped < 0) {
@@ -603,7 +504,7 @@ namespace fd_left_hardware{
             return false;
         }
     }
-} // namespace fd_left_hardware
+} // namespace fd_right_hardware
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(fd_left_hardware::FDLeftHardwareInterface, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(fd_right_hardware::FDRightHardwareInterface, hardware_interface::SystemInterface)
