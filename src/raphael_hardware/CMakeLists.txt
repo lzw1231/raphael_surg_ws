@@ -32,8 +32,7 @@ find_package(fd_vendor REQUIRED)
 add_library(${PROJECT_NAME} SHARED
         src/mtm/fd_base/fd_hardware_base.cpp
         src/mtm/fd_left/fd_left_hardware.cpp
-        # src/MTM/fd_right/fd_right_hardware.cpp  <-- 未来添加
-        # src/PSM/psm_hardware.cpp               <-- 未来添加
+        src/mtm/fd_right/fd_right_hardware.cpp
 )
 
 # 设置包含目录

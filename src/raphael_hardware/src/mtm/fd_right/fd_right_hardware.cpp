@@ -1,8 +1,8 @@
-#include "raphael_hardware/mtm/fd_left/fd_left_hardware.hpp"
+#include "raphael_hardware/mtm/fd_right/fd_right_hardware.hpp"
 #include "raphael_hardware/common/math_utils.hpp"
 
-namespace fd_left_hardware{
-    FDLeftHardwareInterface::~FDLeftHardwareInterface() {
+namespace fd_right_hardware{
+    FDRightHardwareInterface::~FDRightHardwareInterface() {
         // 确保析构时断开设备连接
         (void)disconnectFromDevice();
     }
@@ -12,7 +12,7 @@ namespace fd_left_hardware{
      *
      * 从 DHD 设备获取位置、速度、力、惯性矩阵及按钮状态，并更新至状态缓冲区。
      */
-    hardware_interface::return_type FDLeftHardwareInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
+    hardware_interface::return_type FDRightHardwareInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
         auto logger = rclcpp::get_logger(logger_name_);
         int flag = 0; // 用于累计 API 调用错误码
 
@@ -20,7 +20,11 @@ namespace fd_left_hardware{
         flag += dhdGetPosition(&hw_states_position_[0], &hw_states_position_[1], &hw_states_position_[2], dev_id_);
         if (!ignore_orientation_ && hw_states_position_.size() > 3) {
             flag += dhdGetOrientationRad(&hw_states_position_[3], &hw_states_position_[4], &hw_states_position_[5], dev_id_);
-        } else if (ignore_orientation_ && hw_states_position_.size() > 3) {
+        } else if (ignore_orientation_&& hw_states_position_
+        .
+        size() > 3
+        )
+        {
             hw_states_position_[3] = 0.0;
             hw_states_position_[4] = 0.0;
             hw_states_position_[5] = 0.0;
@@ -39,7 +43,11 @@ namespace fd_left_hardware{
         flag += dhdGetLinearVelocity(&hw_states_velocity_[0], &hw_states_velocity_[1], &hw_states_velocity_[2], dev_id_);
         if (!ignore_orientation_ && hw_states_velocity_.size() > 3) {
             flag += dhdGetAngularVelocityRad(&hw_states_velocity_[3], &hw_states_velocity_[4], &hw_states_velocity_[5], dev_id_);
-        } else if (ignore_orientation_ && hw_states_velocity_.size() > 3) {
+        } else if (ignore_orientation_&& hw_states_velocity_
+        .
+        size() > 3
+        )
+        {
             hw_states_velocity_[3] = 0.0;
             hw_states_velocity_[4] = 0.0;
             hw_states_velocity_[5] = 0.0;
@@ -69,7 +77,11 @@ namespace fd_left_hardware{
             hw_states_effort_[3] = torque[0];
             hw_states_effort_[4] = torque[1];
             hw_states_effort_[5] = torque[2];
-        } else if (ignore_orientation_ && hw_states_effort_.size() > 3) {
+        } else if (ignore_orientation_&& hw_states_effort_
+        .
+        size() > 3
+        )
+        {
             hw_states_effort_[3] = 0.0;
             hw_states_effort_[4] = 0.0;
             hw_states_effort_[5] = 0.0;
@@ -124,7 +136,7 @@ namespace fd_left_hardware{
      *
      * 将计算得到的力/力矩命令发送至 DHD 设备。若命令包含 NaN，则发送零力以确保安全。
      */
-    hardware_interface::return_type FDLeftHardwareInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
+    hardware_interface::return_type FDRightHardwareInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
         // 检查命令中是否存在 NaN
         bool isNan = false;
         for (auto& command : hw_commands_effort_) {
@@ -165,7 +177,7 @@ namespace fd_left_hardware{
         }
         return hardware_interface::return_type::OK;
     }
-} // namespace fd_left_hardware
+} // namespace fd_right_hardware
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(fd_left_hardware::FDLeftHardwareInterface, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(fd_right_hardware::FDRightHardwareInterface, hardware_interface::SystemInterface)
