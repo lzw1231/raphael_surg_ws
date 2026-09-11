@@ -12,11 +12,12 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.substitutions import Command
 from launch_ros.parameter_descriptions import ParameterValue
+from launch.actions import ExecuteProcess
 
 
 def generate_launch_description():
     # fd_left 的 xacro 模型路径
-    robot_description_xacro = os.path.join(get_package_share_path("raphael_description"), 'urdf', 'MTM', 'fd_left', 'fd_left.config.xacro')
+    robot_description_xacro = os.path.join(get_package_share_path("raphael_description"), 'urdf', 'mtm', 'fd_left', 'fd_left.config.xacro')
 
     # RViz 的 config 路径
     robot_config_rviz = os.path.join(get_package_share_path("raphael_description"), 'rviz', 'fd_left_config.rviz')
@@ -28,6 +29,8 @@ def generate_launch_description():
         parameters=[{"robot_description": ParameterValue(Command(["xacro ", robot_description_xacro]), value_type=str)}],
         output="screen"
     )
+
+    dump_urdf_node = ExecuteProcess(cmd=['xacro', robot_description_xacro, '-o', '/tmp/fd_left_expanded.urdf'], output='screen')
 
     # RViz2 可视化配置
     rviz_node = Node(
@@ -46,6 +49,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         robot_state_publisher_node,
+        dump_urdf_node,
         rviz_node,
         joint_state_gui_node
     ])

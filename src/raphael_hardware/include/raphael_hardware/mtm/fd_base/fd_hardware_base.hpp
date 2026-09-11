@@ -46,7 +46,7 @@ namespace fd_hardware_base{
 
         // 设备标识与配置参数
         char dev_id_{-1}; // DHD 设备内部 ID
-        int interface_SN_{-1}; // 设备序列号
+        int interface_SN_{-1}; // 设备序列号z
         bool emulate_button_{false}; // 是否启用夹爪按键模拟
         std::string inertia_interface_name_; // 惯性矩阵接口名称前缀
         double effector_mass_{-1.0}; // 末端执行器质量 (kg)

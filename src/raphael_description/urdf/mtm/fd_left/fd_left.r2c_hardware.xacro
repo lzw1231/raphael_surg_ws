@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:macro
-            name="fd_left_xacro"
+            name="fd_left_ros2_control"
             params="robot_id ros2_control_name:='FDLeftHardware' interface_id:='-1' interface_sn:='-1' effector_mass:='-1.0' use_fake_hardware:='false' use_orientation:='false' orientation_is_actuated:='false' use_gripper:='false' emulate_button:='false' ignore_orientation_readings:='false'">
         <ros2_control name="${ros2_control_name}" type="system">
             <hardware>
@@ -20,7 +20,7 @@
             </hardware>
 
             <!-- Configure GPIOs -->
-            <gpio name="button">
+            <gpio name="fd_left_button">
                 <state_interface name="position"/>
             </gpio>
 

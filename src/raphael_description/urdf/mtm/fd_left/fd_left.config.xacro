@@ -16,7 +16,7 @@
 
     <!-- Import and setup interface ros2_control description -->
     <xacro:include filename="$(find raphael_description)/urdf/mtm/fd_left/fd_left.r2c_hardware.xacro"/>
-    <xacro:fd_ros2_control
+    <xacro:fd_left_ros2_control
             interface_id="-1"
             interface_sn="40619"
             robot_id="$(arg robot_id)"
@@ -26,7 +26,7 @@
             ignore_orientation_readings="false"
             use_gripper="$(arg use_gripper)"
             emulate_button="true"
-            effector_mass="-1.0"
+            effector_mass="0.5"
     />
 
     <!-- Default effector masses:
